@@ -1,0 +1,14 @@
+/home/einfochips/nexus-git/bin/Debug/net8.0/nexus-git
+/home/einfochips/nexus-git/bin/Debug/net8.0/nexus-git.deps.json
+/home/einfochips/nexus-git/bin/Debug/net8.0/nexus-git.runtimeconfig.json
+/home/einfochips/nexus-git/bin/Debug/net8.0/nexus-git.dll
+/home/einfochips/nexus-git/bin/Debug/net8.0/nexus-git.pdb
+/home/einfochips/nexus-git/obj/Debug/net8.0/nexus-git.GeneratedMSBuildEditorConfig.editorconfig
+/home/einfochips/nexus-git/obj/Debug/net8.0/nexus-git.AssemblyInfoInputs.cache
+/home/einfochips/nexus-git/obj/Debug/net8.0/nexus-git.AssemblyInfo.cs
+/home/einfochips/nexus-git/obj/Debug/net8.0/nexus-git.csproj.CoreCompileInputs.cache
+/home/einfochips/nexus-git/obj/Debug/net8.0/nexus-git.dll
+/home/einfochips/nexus-git/obj/Debug/net8.0/refint/nexus-git.dll
+/home/einfochips/nexus-git/obj/Debug/net8.0/nexus-git.pdb
+/home/einfochips/nexus-git/obj/Debug/net8.0/nexus-git.genruntimeconfig.cache
+/home/einfochips/nexus-git/obj/Debug/net8.0/ref/nexus-git.dll
