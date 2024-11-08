@@ -32,4 +32,4 @@ jobs:
         NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
         NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
       run: |
-        curl -v -u $NEXUS_USERNAME:$NEXUS_PASSWORD --upload-file ./output/MyDotNetApp.dll http://localhost:8081/repository/yashm-net/MyDotNetApp.dll
+        curl -v -u $NEXUS_USERNAME:$NEXUS_PASSWORD --upload-file ./output/MyDotNetApp.dll http://52.187.94.85:8081/repository/yashm-net/MyDotNetApp.dll
