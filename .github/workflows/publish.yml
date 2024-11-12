@@ -1,35 +1,35 @@
-name: Build and Publish
+# name: Build and Publish
 
-on:
-  push:
-    branches:
-      - master
+# on:
+#   push:
+#     branches:
+#       - master
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+#     steps:
+#     - name: Checkout code
+#       uses: actions/checkout@v2
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: '8.0.x' # Specify the .NET version you want to use
+#     - name: Setup .NET
+#       uses: actions/setup-dotnet@v1
+#       with:
+#         dotnet-version: '8.0.x' # Specify the .NET version you want to use
 
-    - name: Restore dependencies
-      run: dotnet restore
+#     - name: Restore dependencies
+#       run: dotnet restore
 
-    - name: Build
-      run: dotnet build --configuration Release --no-restore
+#     - name: Build
+#       run: dotnet build --configuration Release --no-restore
 
-    - name: Publish
-      run: dotnet publish --configuration Release --output ./output
+#     - name: Publish
+#       run: dotnet publish --configuration Release --output ./output
 
-    - name: Publish to Nexus
-      env:
-        NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
-        NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
-      run: |
-         curl -v -u $NEXUS_USERNAME:$NEXUS_PASSWORD -F "file=@./bin/Release/nexus-git.1.0.0.nupkg" http://52.187.94.85:8081/repository/yashm-nuget/nexus-git.1.0.0.nupkg
+#     - name: Publish to Nexus
+#       env:
+#         NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+#         NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+#       run: |
+#          curl -v -u $NEXUS_USERNAME:$NEXUS_PASSWORD -F "file=@./bin/Release/nexus-git.1.0.0.nupkg" http://52.187.94.85:8081/repository/yashm-nuget/nexus-git.1.0.0.nupkg
