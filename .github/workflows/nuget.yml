@@ -31,4 +31,4 @@ jobs:
         NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
         NEXUS_API_KEY: ${{secrets.NEXUS_API_KEY}}
       run: |
-         dotnet nuget push bin/Release/nexus-git.1.0.0.nupkg --source http://52.187.94.85:8081/repository/yashm-nuget/ --api-key ${{ secrets.NEXUS_API_KEY }} 
+        dotnet nuget push bin/Release/nexus-git.1.0.0.nupkg --source http://52.187.94.85:8081/repository/yashm-nuget/ --username ${{ secrets.NEXUS_USERNAME }} --password ${{ secrets.NEXUS_PASSWORD }}
