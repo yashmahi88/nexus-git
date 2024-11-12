@@ -1,0 +1,31 @@
+name: Build and Publish NuGet Package
+
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '6.0'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build project
+        run: dotnet build --configuration Release
+
+      - name: Pack project into .nupkg
+        run: dotnet pack --configuration Release
+
+      - name: Publish package to Nexus
+        run: |
+          dotnet nuget push bin/Release/nexus-git.1.0.0.nupkg --source http://52.187.94.85:8081/repository/yashm-nuget/ --api-key ${{ secrets.NEXUS_API_KEY }}
+        env:
+          NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}

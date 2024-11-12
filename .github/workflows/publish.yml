@@ -16,7 +16,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '8.0.x'
+        dotnet-version: '8.0.x' # Specify the .NET version you want to use
 
     - name: Restore dependencies
       run: dotnet restore
@@ -27,15 +27,9 @@ jobs:
     - name: Publish
       run: dotnet publish --configuration Release --output ./output
 
-    - name: Install NuGet CLI
-      run: |
-        wget https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
-        sudo mv nuget.exe /usr/local/bin/nuget
-
-    - name: Publish to Nexus using NuGet CLI
+    - name: Publish to Nexus
       env:
         NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
         NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
       run: |
-        # Push the .nupkg package to Nexus
-        nuget push ./bin/Release/nexus-git.1.0.0.nupkg -Source http://52.187.94.85:8081/repository/yashm-nuget/ -ApiKey $NEXUS_PASSWORD
+         curl -v -u $NEXUS_USERNAME:$NEXUS_PASSWORD -F "file=@./bin/Release/nexus-git.1.0.0.nupkg" http://52.187.94.85:8081/repository/yashm-nuget/nexus-git.1.0.0.nupkg
