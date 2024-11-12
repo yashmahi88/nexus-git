@@ -39,16 +39,16 @@ jobs:
 
         # Determine the package name based on the branch
         if [[ "${GITHUB_REF}" == "refs/heads/development" ]]; then
-          PACKAGE_NAME="nexus-git-${GITHUB_RUN_ID}-develop.nupkg"
+          PACKAGE_NAME="nexus-git_${GITHUB_RUN_ID}_develop.nupkg"
         elif [[ "${GITHUB_REF}" == "refs/heads/release" ]]; then
-          PACKAGE_NAME="nexus-git-1.0.0-release-${SHORT_COMMIT_ID}.nupkg"
+          PACKAGE_NAME="nexus-git_1.0.0_release_${SHORT_COMMIT_ID}.nupkg"
         fi
 
         # Pack the project
         dotnet pack --configuration Release --output ./output --no-build
 
         # Rename the .nupkg file
-        ORIGINAL_PACKAGE_NAME="nexus-git.1.0.0.nupkg" # Adjust this if your versioning changes
+        ORIGINAL_PACKAGE_NAME="nexus-git_1.0.0.nupkg" # Adjust this if your versioning changes
         mv "./output/${ORIGINAL_PACKAGE_NAME}" "./output/${PACKAGE_NAME}"
         echo "PACKAGE_NAME=${PACKAGE_NAME}" >> $GITHUB_ENV
 
