@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>nexus-git</id>
+    <version>1.0.0</version>
+    <authors>nexus-git</authors>
+    <description>Package Description</description>
+    <repository type="git" commit="795cd1cbda657decf69ec07cbc79929a462dead7" />
+    <dependencies>
+      <group targetFramework="net8.0" />
+    </dependencies>
+    <contentFiles>
+      <files include="any/net8.0/lib/nexus-git.dll" buildAction="None" />
+    </contentFiles>
+  </metadata>
+  <files>
+    <file src="/home/einfochips/nexus-git/bin/Release/net8.0/nexus-git.runtimeconfig.json" target="lib/net8.0/nexus-git.runtimeconfig.json" />
+    <file src="/home/einfochips/nexus-git/bin/Release/net8.0/nexus-git.dll" target="lib/net8.0/nexus-git.dll" />
+    <file src="/home/einfochips/nexus-git/lib/nexus-git.dll" target="content/lib/nexus-git.dll" />
+    <file src="/home/einfochips/nexus-git/lib/nexus-git.dll" target="contentFiles/any/net8.0/lib/nexus-git.dll" />
+  </files>
+</package>
