@@ -40,27 +40,31 @@ jobs:
         # Determine the package name based on the branch
         if [[ "${GITHUB_REF}" == "refs/heads/development" ]]; then
           # For development branch, include job ID in the package name
-          PACKAGE_NAME="nexus-git_${GITHUB_RUN_ID}_develop.nupkg"
+          PACKAGE_NAME="nexus-git_${GITHUB_RUN_ID}_develop"
+          VERSION="${GITHUB_RUN_ID}"  # Using the GitHub Run ID as the version for dev builds
         elif [[ "${GITHUB_REF}" == "refs/heads/release" ]]; then
           # For release branch, use version 1.0.0 and include short commit ID
-          PACKAGE_NAME="nexus-git_1.0.0_release_${SHORT_COMMIT_ID}.nupkg"
+          PACKAGE_NAME="nexus-git_1.0.0_release_${SHORT_COMMIT_ID}"
+          VERSION="1.0.0"
         fi
 
-        # Use dotnet pack with a dynamically set version and output filename
+        # Pack the project with the dynamically set version and package name
+        echo "Packing project with version: ${VERSION} and package name: ${PACKAGE_NAME}"
+
         dotnet pack --configuration Release --output ./output --no-build \
-          /p:PackageVersion=1.0.0 \
-          /p:PackageId="nexus-git" \
-          /p:FileVersion="${SHORT_COMMIT_ID}" \
+          /p:PackageVersion=${VERSION} \
+          /p:PackageId=nexus-git \
+          /p:FileVersion=${SHORT_COMMIT_ID} \
           /p:PackageReleaseNotes="Built from ${GITHUB_REF} branch at commit ${GITHUB_SHA}"
 
         # List files in the output directory to see the exact generated package name
         echo "Listing files in output directory:"
         ls -la ./output
 
-        # Rename the generated .nupkg file to match the desired format
+        # Dynamically find and rename the .nupkg file
         GENERATED_PACKAGE=$(ls ./output/*.nupkg)
-        mv "$GENERATED_PACKAGE" "./output/${PACKAGE_NAME}"
-        echo "PACKAGE_NAME=${PACKAGE_NAME}" >> $GITHUB_ENV
+        mv "$GENERATED_PACKAGE" "./output/${PACKAGE_NAME}.nupkg"
+        echo "PACKAGE_NAME=${PACKAGE_NAME}.nupkg" >> $GITHUB_ENV
 
     - name: List output directory
       run: ls -la ./output
@@ -89,7 +93,6 @@ jobs:
 
     - name: Get release version from release branch
       run: |
-        # You can extract this dynamically from tags or files if needed
         VERSION="1.0.0"  
         PACKAGE_NAME="nexus-git-${VERSION}.nupkg"
         echo "PACKAGE_NAME=${PACKAGE_NAME}" >> $GITHUB_ENV
