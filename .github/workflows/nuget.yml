@@ -1,34 +1,34 @@
-name: Build and Publish NuGet Package
+name: Build and Publish
 
 on:
   workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Set up .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '6.0'
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '8.0.x' # Specify the .NET version you want to use
 
-      - name: Restore dependencies
-        run: dotnet restore
+    - name: Restore dependencies
+      run: dotnet restore
 
-      - name: Build project
-        run: dotnet build --configuration Release
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
 
-      - name: Pack project into .nupkg
-        run: dotnet pack --configuration Release
+    - name: Publish
+      run: dotnet publish --configuration Release --output ./output
 
-      - name: Publish package to Nexus
-        run: |
-           
-           curl -v -u $NEXUS_USERNAME:$NEXUS_PASSWORD -F "file=@./bin/Release/nexus-git.1.0.0.nupkg" http://52.187.94.85:8081/repository/yashm-nuget/nexus-git.1.0.0.nupkg      
-        env:
-          NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
-          NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
-          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+    - name: Publish to Nexus
+      env:
+        NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+        NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+        NEXUS_API_KEY: ${{secrets.NEXUS_API_KEY}}
+      run: |
+         curl -v -u $NEXUS_USERNAME:$NEXUS_API_KEY -F "file=@./bin/Release/nexus-git.1.0.0.nupkg" http://52.187.94.85:8081/repository/yashm-nuget/nexus-git.1.0.0.nupkg
