@@ -63,7 +63,7 @@ jobs:
       run: |
         echo "Pushing package: ./output/${{ env.PACKAGE_NAME }}"
         if [[ "${GITHUB_REF}" == "refs/heads/development" || "${GITHUB_REF}" == "refs/heads/release" ]]; then
-          dotnet nuget push "./output/${{ env.PACKAGE_NAME }}" --source http://52.187.94.85:8081/repository/yashm-nuget/ --api-key ${{ secrets.NEXUS_API_KEY }} --verbosity detailed
+          dotnet nuget push "./output/${{ env.PACKAGE_NAME }}" --source http://52.187.94.85:8081/repository/yashm-nuget/ --api-key ${{ secrets.NEXUS_API_KEY }} 
         fi
 
   tag:
