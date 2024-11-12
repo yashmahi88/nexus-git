@@ -31,6 +31,9 @@ jobs:
     - name: Publish
       run: dotnet publish --configuration Release --output ./output
 
+    - name: Pack
+      run: dotnet pack --configuration Release --output ./output --no-build
+
     - name: Determine Package Name
       id: package_name
       run: |
