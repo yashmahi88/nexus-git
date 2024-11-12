@@ -11,7 +11,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/development' || github.ref == 'refs/heads/release' || github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/development' || github.ref == 'refs/heads/release'
 
     steps:
     - name: Checkout code
@@ -32,19 +32,15 @@ jobs:
       run: dotnet publish --configuration Release --output ./output
 
     - name: Pack
-      run: dotnet pack --configuration Release --output ./output --no-build
-
-    - name: Determine Package Name
-      id: package_name
+      id: pack
       run: |
-        if [[ "${GITHUB_REF}" == "refs/heads/development" ]]; then
-          echo "PACKAGE_NAME=nexus-git-${GITHUB_HEAD_REF}-1.0.0" >> $GITHUB_ENV
-        elif [[ "${GITHUB_REF}" == "refs/heads/release" ]]; then
-          echo "PACKAGE_NAME=release-1.0.1-${GITHUB_SHA}" >> $GITHUB_ENV
-        elif [[ "${GITHUB_REF}" == "refs/heads/master" ]]; then
-          echo "PACKAGE_NAME=release-1.0.1-${GITHUB_SHA}" >> $GITHUB_ENV
-          echo "TAG_NAME=1.0.1" >> $GITHUB_ENV
-        fi
+        # Get the short commit ID
+        SHORT_COMMIT_ID=$(echo "${GITHUB_SHA}" | cut -c1-6)
+        
+        # Pack the project and rename the .nupkg file
+        dotnet pack --configuration Release --output ./output --no-build
+        mv ./output/nexus-git.1.0.0.nupkg ./output/nexus-git-${SHORT_COMMIT_ID}-1.0.0.nupkg
+        echo "PACKAGE_NAME=nexus-git-${SHORT_COMMIT_ID}-1.0.0" >> $GITHUB_ENV
 
     - name: Publish to Nexus
       env:
@@ -53,11 +49,18 @@ jobs:
         NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
       run: |
         if [[ "${GITHUB_REF}" == "refs/heads/development" || "${GITHUB_REF}" == "refs/heads/release" ]]; then
-          dotnet nuget push ./output/${{ env.PACKAGE_NAME }}.nupkg --source http://52.187.94.85:8081/repository/yashm-nuget/ --api-key ${{ secrets.NEXUS_API_KEY }}
+          dotnet nuget push ./output/nexus-git-${{ env.PACKAGE_NAME }}.nupkg --source http://52.187.94.85:8081/repository/yashm-nuget/ --api-key ${{ secrets.NEXUS_API_KEY }}
         fi
 
-    - name: Create Tag for Master Branch
-      if: github.ref == 'refs/heads/master'
+  tag:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Create Tag
       run: |
-        git tag ${{ env.TAG_NAME }}
-        git push origin ${{ env.TAG_NAME }}
+        git tag 1.0.1
+        git push origin 1.0.1
