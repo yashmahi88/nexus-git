@@ -26,7 +26,7 @@ jobs:
 
       - name: Publish package to Nexus
         run: |
-          dotnet nuget push bin/Release/nexus-git.1.0.0.nupkg --source http://52.187.94.85:8081/repository/yashm-nuget/ --api-key ${{ secrets.NEXUS_API_KEY }}        
+          dotnet nuget push bin/Release/nexus-git.1.0.0.nupkg --source https://52.187.94.85:8081/repository/yashm-nuget/ --api-key ${{ secrets.NEXUS_API_KEY }}        
         env:
           NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
           NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
