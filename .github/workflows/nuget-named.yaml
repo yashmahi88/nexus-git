@@ -50,7 +50,7 @@ jobs:
         dotnet pack --configuration Release --output ./output --no-build
 
         # Rename the .nupkg file with the determined name
-        ORIGINAL_PACKAGE_NAME="nexus-git_1.0.0.nupkg" # Adjust this if your versioning changes
+        ORIGINAL_PACKAGE_NAME="nexus-git_1.0.0.nupkg" # This is the name before renaming, adjust if your versioning changes
         mv "./output/${ORIGINAL_PACKAGE_NAME}" "./output/${PACKAGE_NAME}"
         echo "PACKAGE_NAME=${PACKAGE_NAME}" >> $GITHUB_ENV
 
