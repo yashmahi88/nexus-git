@@ -70,8 +70,10 @@ jobs:
         NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
       run: |
         echo "Pushing package: ./output/${{ env.PACKAGE_NAME }}"
+
+        # Ensure we're pushing from development or release branch with correct file name
         if [[ "${GITHUB_REF}" == "refs/heads/development" || "${GITHUB_REF}" == "refs/heads/release" ]]; then
-          # Push the package to Nexus with the correct versioning scheme
+          # Push the package to Nexus with the correct naming convention
           dotnet nuget push "./output/${{ env.PACKAGE_NAME }}" --source http://52.187.94.85:8081/repository/yashm-nuget/ --api-key ${{ secrets.NEXUS_API_KEY }} 
         fi
 
@@ -85,8 +87,8 @@ jobs:
 
     - name: Get release version from release branch
       run: |
-        # Get the version from the release branch
-        VERSION="1.0.0"  # You can extract this dynamically from tags or files if needed
+        # You can extract this dynamically from tags or files if needed
+        VERSION="1.0.0"  
         PACKAGE_NAME="nexus-git-${VERSION}.nupkg"
         echo "PACKAGE_NAME=${PACKAGE_NAME}" >> $GITHUB_ENV
 
