@@ -36,16 +36,24 @@ jobs:
       run: |
         # Get the short commit ID
         SHORT_COMMIT_ID=$(echo "${GITHUB_SHA}" | cut -c1-6)
-        
+
+        # Determine the package name based on the branch
+        if [[ "${GITHUB_REF}" == "refs/heads/development" ]]; then
+          PACKAGE_NAME="nexus-git-${GITHUB_RUN_ID}-develop.nupkg"
+        elif [[ "${GITHUB_REF}" == "refs/heads/release" ]]; then
+          PACKAGE_NAME="nexus-git-1.0.0-release-${SHORT_COMMIT_ID}.nupkg"
+        fi
+
         # Pack the project
         dotnet pack --configuration Release --output ./output --no-build
-        
+
         # Rename the .nupkg file
-        ORIGINAL_PACKAGE_NAME="nexus-git.1.0.0.nupkg"
-        NEW_PACKAGE_NAME="nexus-git-${SHORT_COMMIT_ID}-1.0.0.nupkg"
-        
-        mv "./output/${ORIGINAL_PACKAGE_NAME}" "./output/${NEW_PACKAGE_NAME}"
-        echo "PACKAGE_NAME=${NEW_PACKAGE_NAME}" >> $GITHUB_ENV
+        ORIGINAL_PACKAGE_NAME="nexus-git.1.0.0.nupkg" # Adjust this if your versioning changes
+        mv "./output/${ORIGINAL_PACKAGE_NAME}" "./output/${PACKAGE_NAME}"
+        echo "PACKAGE_NAME=${PACKAGE_NAME}" >> $GITHUB_ENV
+
+    - name: List output directory
+      run: ls -la ./output
 
     - name: Publish to Nexus
       env:
@@ -53,8 +61,9 @@ jobs:
         NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
         NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
       run: |
+        echo "Pushing package: ./output/${{ env.PACKAGE_NAME }}"
         if [[ "${GITHUB_REF}" == "refs/heads/development" || "${GITHUB_REF}" == "refs/heads/release" ]]; then
-          dotnet nuget push "./output/${{ env.PACKAGE_NAME }}" --source http://52.187.94.85:8081/repository/yashm-nuget/ --api-key ${{ secrets.NEXUS_API_KEY }}
+          dotnet nuget push "./output/${{ env.PACKAGE_NAME }}" --source http://52.187.94.85:8081/repository/yashm-nuget/ --api-key ${{ secrets.NEXUS_API_KEY }} --verbosity detailed
         fi
 
   tag:
@@ -67,5 +76,5 @@ jobs:
 
     - name: Create Tag
       run: |
-        git tag 1.0.1
-        git push origin 1.0.1
+        git tag 1.0.0
+        git push origin 1.0.0
