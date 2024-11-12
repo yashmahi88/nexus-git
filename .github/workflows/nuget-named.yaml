@@ -37,10 +37,15 @@ jobs:
         # Get the short commit ID
         SHORT_COMMIT_ID=$(echo "${GITHUB_SHA}" | cut -c1-6)
         
-        # Pack the project and rename the .nupkg file
+        # Pack the project
         dotnet pack --configuration Release --output ./output --no-build
-        mv ./output/nexus-git.1.0.0.nupkg ./output/nexus-git-${SHORT_COMMIT_ID}-1.0.0.nupkg
-        echo "PACKAGE_NAME=nexus-git-${SHORT_COMMIT_ID}-1.0.0" >> $GITHUB_ENV
+        
+        # Rename the .nupkg file
+        ORIGINAL_PACKAGE_NAME="nexus-git.1.0.0.nupkg"
+        NEW_PACKAGE_NAME="nexus-git-${SHORT_COMMIT_ID}-1.0.0.nupkg"
+        
+        mv "./output/${ORIGINAL_PACKAGE_NAME}" "./output/${NEW_PACKAGE_NAME}"
+        echo "PACKAGE_NAME=${NEW_PACKAGE_NAME}" >> $GITHUB_ENV
 
     - name: Publish to Nexus
       env:
@@ -49,7 +54,7 @@ jobs:
         NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
       run: |
         if [[ "${GITHUB_REF}" == "refs/heads/development" || "${GITHUB_REF}" == "refs/heads/release" ]]; then
-          dotnet nuget push ./output/nexus-git-${{ env.PACKAGE_NAME }}.nupkg --source http://52.187.94.85:8081/repository/yashm-nuget/ --api-key ${{ secrets.NEXUS_API_KEY }}
+          dotnet nuget push "./output/${{ env.PACKAGE_NAME }}" --source http://52.187.94.85:8081/repository/yashm-nuget/ --api-key ${{ secrets.NEXUS_API_KEY }}
         fi
 
   tag:
