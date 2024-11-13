@@ -2,7 +2,7 @@
 <?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
-    <id>nexus-git</id>
+    <id>nexus-gitrelease</id>
     <version>1.0.0</version>
     <title>Nexus Git</title>
     <authors>YourName</authors>
