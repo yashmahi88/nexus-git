@@ -6,11 +6,20 @@
     <RootNamespace>nexus_git</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Version>1.0.0</Version>  
+    <PackageId>nexus-git</PackageId> 
   </PropertyGroup>
+
   <ItemGroup>
-    
-    <None Include="lib/nexus-git.dll" Pack="true" />
-  
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
   </ItemGroup>
+
+  <Target Name="SetPackageVersion" BeforeTargets="Pack">
+    <PropertyGroup>
+        <PackageVersion Condition="'$(BuildConfiguration)' == 'Release' and '$(BranchName)' == 'release'">1.0.0-release-$(CommitId.Substring(0, 6))</PackageVersion>
+        <PackageVersion Condition="'$(BuildConfiguration)' == 'Release' and '$(BranchName)' == 'develop'">$(JobId)-develop</PackageVersion>
+        <PackageVersion Condition="'$(BuildConfiguration)' == 'Release' and '$(BranchName)' == 'master'">1.0.0</PackageVersion>
+    </PropertyGroup>
+  </Target>
 
 </Project>
