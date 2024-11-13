@@ -3,7 +3,7 @@ name: Publish Package
 on:
   push:
     branches:
-      - develop
+      - development  
       - release
       - master
 
@@ -18,7 +18,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v2
         with:
-          dotnet-version: '8.0.x'  #give the dotnet version u are using
+          dotnet-version: '8.0.x'  #the .net vrsn u are using
 
       - name: Restore dependencies
         run: dotnet restore
@@ -29,9 +29,9 @@ jobs:
       - name: Set package name and version
         id: set_name
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
-            PACKAGE_ID="nexus-git-${{ github.run_id }}-develop"
-            PACKAGE_VERSION=""  
+          if [[ "${{ github.ref }}" == "refs/heads/development" ]]; then
+            PACKAGE_ID="nexus-git-${{ github.run_id }}-development"
+            PACKAGE_VERSION=""  # No version suffix for development
           elif [[ "${{ github.ref }}" == "refs/heads/release" ]]; then
             COMMIT_ID=$(echo "${{ github.sha }}" | cut -c1-6)
             PACKAGE_ID="nexus-git-1.0.0-release-${COMMIT_ID}"
@@ -39,12 +39,19 @@ jobs:
           elif [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
             PACKAGE_ID="nexus-git-1.0.0"
             PACKAGE_VERSION="1.0.0"
-          fi
+          fi 
           echo "PACKAGE_ID=${PACKAGE_ID}" >> $GITHUB_ENV
           echo "PACKAGE_VERSION=${PACKAGE_VERSION}" >> $GITHUB_ENV
 
       - name: Pack project
-        run: dotnet pack --configuration Release --output ./bin/Release /p:CustomPackageId=${{ env.PACKAGE_ID }} /p:PackageVersion=${{ env.PACKAGE_VERSION }}
+        run: |
+          if [[ -z "${{ env.PACKAGE_VERSION }}" ]]; then
+            #for devlopment br
+            dotnet pack --configuration Release --output ./bin/Release /p:CustomPackageId=${{ env.PACKAGE_ID }}
+          else
+            #for master and release
+            dotnet pack --configuration Release --output ./bin/Release /p:CustomPackageId=${{ env.PACKAGE_ID }} /p:PackageVersion=${{ env.PACKAGE_VERSION }}
+          fi
 
       - name: Push to Nexus Repository
         env:
@@ -53,9 +60,9 @@ jobs:
           NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
         run: |
           if [[ -z "${{ env.PACKAGE_VERSION }}" ]]; then
-            #no vrsn for develop branch
+            #for devlopment br with no vrsn
             dotnet nuget push ./bin/Release/${{ env.PACKAGE_ID }}.nupkg --source http://52.187.94.85:8081/repository/yashm-nuget/ --api-key $NEXUS_API_KEY
           else
-            #version for the release and master branch
+            #vrsn for master and release
             dotnet nuget push ./bin/Release/${{ env.PACKAGE_ID }}.${{ env.PACKAGE_VERSION }}.nupkg --source http://52.187.94.85:8081/repository/yashm-nuget/ --api-key $NEXUS_API_KEY
           fi
