@@ -55,4 +55,4 @@ jobs:
           NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
         run: |
           # Push the package to the Nexus repository
-          dotnet nuget push ./bin/Release/${{ env.PACKAGE_ID }}.${{ env.PACKAGE_VERSION }}.nupkg --source http://52.187.94.85:8081/nuget-snapshot/ --api-key $NEXUS_API_KEY
+          dotnet nuget push ./bin/Release/${{ env.PACKAGE_ID }}.${{ env.PACKAGE_VERSION }}.nupkg --source http://52.187.94.85:8081/repository/nuget-snapshot/ --api-key $NEXUS_API_KEY
