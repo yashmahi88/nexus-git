@@ -58,10 +58,5 @@ jobs:
           NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
           NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
         run: |
-          PACKAGE_PATH="./bin/Release/${{ env.PACKAGE_ID }}.${{ env.PACKAGE_VERSION }}.nupkg"
-          if [[ -f "$PACKAGE_PATH" ]]; then
-            echo "Pushing package to Nexus..."
-            dotnet nuget push "$PACKAGE_PATH" --source http://52.187.94.85:8081/repository/nuget-snapshot/ --api-key $NEXUS_API_KEY
-          else
-            echo "Package not found: $PACKAGE_PATH"
-            exit 1
+          dotnet nuget push ./bin/Release/${{ env.PACKAGE_ID }}.${{ env.PACKAGE_VERSION }}.nupkg --source http://52.187.94.85:8081/repository/nuget-snapshot/ --api-key $NEXUS_API_KEY
+    
