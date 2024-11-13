@@ -1,22 +1,23 @@
+
 <?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
-    <id>$id$</id>
-    <version>$version$</version>
-    <title>$title$</title>
-    <authors>$author$</authors>
-    <owners>$author$</owners>
+    <id>nexus-git</id>
+    <version>1.0.0</version>
+    <title>Nexus Git</title>
+    <authors>YourName</authors>
+    <owners>YourName</owners>
     <licenseUrl>http://LICENSE_URL_HERE_OR_DELETE_THIS_LINE</licenseUrl>
     <projectUrl>http://PROJECT_URL_HERE_OR_DELETE_THIS_LINE</projectUrl>
     <iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>$description$</description>
+    <description>A dynamic package for Nexus Git.</description>
     <releaseNotes>Summary of changes made in this release of the package.</releaseNotes>
     <copyright>Copyright 2024</copyright>
-    <tags>Tag1 Tag2</tags>
+    <tags>Git Nexus</tags>
   </metadata>
   <files>
-    <file src="lib/nexus-git.dll" target="lib/net8.0/nexus-git.dll" />
-     <!--<file src="lib/dll2.dll" target="lib/net8.0/dll2.dll" /> -->
+    <file src="lib/nexus-git-$(PackageVersion).dll" target="lib/net8.0/nexus-git-$(PackageVersion).dll" />
+    <!--<file src="lib/dll2.dll" target="lib/net8.0/dll2.dll" /> -->
   </files>
 </package>
