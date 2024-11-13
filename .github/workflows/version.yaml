@@ -51,7 +51,7 @@ jobs:
         run: |
           dotnet pack --configuration Release --output ./bin/Release /p:CustomPackageId=${{ env.PACKAGE_ID }} /p:PackageVersion=${{ env.PACKAGE_VERSION }}
 
-      # The next step will require manual approval
+      
       - name: Push to Nexus Repository
         env:
           NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
