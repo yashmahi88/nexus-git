@@ -11,6 +11,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    outputs:
+      package_id: ${{ steps.set_name.outputs.package_id }}
+      package_version: ${{ steps.set_name.outputs.package_version }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -43,18 +47,20 @@ jobs:
           fi 
           echo "PACKAGE_ID=${PACKAGE_ID}" >> $GITHUB_ENV
           echo "PACKAGE_VERSION=${PACKAGE_VERSION}" >> $GITHUB_ENV
+          echo "::set-output name=package_id::${PACKAGE_ID}"
+          echo "::set-output name=package_version::${PACKAGE_VERSION}"
 
       - name: Pack project
         run: |
-          dotnet pack --configuration Release --output ./bin/Release /p:CustomPackageId=${{ env.PACKAGE_ID }} /p:PackageVersion=${{ env.PACKAGE_VERSION }}
+          dotnet pack --configuration Release --output ./bin/Release /p:CustomPackageId=${{ steps.set_name.outputs.package_id }} /p:PackageVersion=${{ steps.set_name.outputs.package_version }}
           # List files in the output directory for debugging
           ls -al ./bin/Release
 
       - name: Upload Package as Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: nuget-package
-          path: ./bin/Release/${{ env.PACKAGE_ID }}.${{ env.PACKAGE_VERSION }}.nupkg
+          path: ./bin/Release/${{ steps.set_name.outputs.package_id }}.${{ steps.set_name.outputs.package_version }}.nupkg
 
   push_to_nexus:
     runs-on: ubuntu-latest
@@ -63,7 +69,7 @@ jobs:
 
     steps:
       - name: Download Package Artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v2
         with:
           name: nuget-package
           path: ./bin/Release
@@ -77,4 +83,4 @@ jobs:
           NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
           NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
         run: |
-          dotnet nuget push ./bin/Release/${{ env.PACKAGE_ID }}.${{ env.PACKAGE_VERSION }}.nupkg --source http://52.187.94.85:8081/repository/nuget-tag/ --api-key $NEXUS_API_KEY
+          dotnet nuget push ./bin/Release/${{ needs.build.outputs.package_id }}.${{ needs.build.outputs.package_version }}.nupkg --source http://52.187.94.85:8081/repository/nuget-tag/ --api-key $NEXUS_API_KEY
