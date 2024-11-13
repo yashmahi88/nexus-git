@@ -26,30 +26,26 @@ jobs:
       - name: Build project
         run: dotnet build --configuration Release
 
-      - name: Pack project
-        run: dotnet pack --configuration Release --output ./bin/Release
-
       - name: Set package name
         id: set_name
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/develop" ]]; then
-            echo "PACKAGE_NAME=nexus-git-${{ github.run_id }}-develop.nupkg" >> $GITHUB_ENV
+            PACKAGE_ID="nexus-git-${{ github.run_id }}-develop"
           elif [[ "${{ github.ref }}" == "refs/heads/release" ]]; then
             COMMIT_ID=$(echo "${{ github.sha }}" | cut -c1-6)
-            echo "PACKAGE_NAME=nexus-git-1.0.0-release-${COMMIT_ID}.nupkg" >> $GITHUB_ENV
+            PACKAGE_ID="nexus-git-1.0.0-release-${COMMIT_ID}"
           elif [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
-            echo "PACKAGE_NAME=nexus-git-1.0.0.nupkg" >> $GITHUB_ENV
+            PACKAGE_ID="nexus-git-1.0.0"
           fi
+          echo "PACKAGE_ID=${PACKAGE_ID}" >> $GITHUB_ENV
 
-      - name: Rename package
-        run: |
-          mv ./bin/Release/*.nupkg ./bin/Release/${{ env.PACKAGE_NAME }}
+      - name: Pack project
+        run: dotnet pack --configuration Release --output ./bin/Release /p:CustomPackageId=${{ env.PACKAGE_ID }}
 
       - name: Push to Nexus Repository
         env:
           NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
           NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
-          NEXUS_API_KEY: ${{secrets.NEXUS_API_KEY}}
+          NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
         run: |
-          # curl -u $NEXUS_USERNAME:$NEXUS_PASSWORD --upload-file ./bin/Release/${{ env.PACKAGE_NAME }} "https://your-nexus-repo-url/repository/your-repo-name/${{ env.PACKAGE_NAME }}"
-          dotnet nuget push bin/Release/${{ env.PACKAGE_NAME }} --source http://52.187.94.85:8081/repository/yashm-nuget/  --api-key ${{secrets.NEXUS_API_KEY}}
+          dotnet nuget push ./bin/Release/${{ env.PACKAGE_ID }}.nupkg --source http://52.187.94.85:8081/repository/yashm-nuget/ --api-key $NEXUS_API_KEY
