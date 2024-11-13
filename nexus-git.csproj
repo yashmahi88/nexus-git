@@ -7,7 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Version>1.0.0</Version>  
-    <PackageId>nexus-git${BranchName}</PackageId> 
+    <PackageId Condition="'$(BuildConfiguration)' == 'Release' and '$(BranchName)' == 'release'">1.0.0-release-$(CommitId.Substring(0, 6))t</PackageId> 
   </PropertyGroup>
 <!--
   <ItemGroup>
