@@ -3,13 +3,16 @@ name: Publish Package
 on:
   push:
     branches:
-      - development  
+      - development
       - release
       - master
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    environment:
+      name: nexus-approval  
 
     steps:
       - name: Checkout code
@@ -48,14 +51,13 @@ jobs:
         run: |
           dotnet pack --configuration Release --output ./bin/Release /p:CustomPackageId=${{ env.PACKAGE_ID }} /p:PackageVersion=${{ env.PACKAGE_VERSION }}
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build  
+    
+      - name: Wait for approval before deploying to Nexus
+        if: ${{ github.event_name == 'push' }}  # This can be changed to other conditions
+        uses: peter-evans/wait-for-approval@v1
+        with:
+          approval_required: true
 
-    environment:
-      name: nexus-approval 
-
-    steps:
       - name: Push to Nexus Repository
         env:
           NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
@@ -63,3 +65,4 @@ jobs:
           NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
         run: |
           dotnet nuget push ./bin/Release/${{ env.PACKAGE_ID }}.${{ env.PACKAGE_VERSION }}.nupkg --source http://52.187.94.85:8081/repository/nuget-snapshot/ --api-key $NEXUS_API_KEY
+          
