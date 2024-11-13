@@ -41,9 +41,9 @@ jobs:
             echo "PACKAGE_NAME=nexus-git-1.0.0.nupkg" >> $GITHUB_ENV
           fi
 
-      - name: Rename package
-        run: |
-          mv ./bin/Release/*.nupkg ./bin/Release/${{ env.PACKAGE_NAME }}
+    #   - name: Rename package
+    #     run: |
+    #       mv ./bin/Release/*.nupkg ./bin/Release/${{ env.PACKAGE_NAME }}
 
       - name: Push to Nexus Repository
         env:
