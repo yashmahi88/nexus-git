@@ -46,13 +46,6 @@ jobs:
       - name: Pack project
         run: |
           dotnet pack --configuration Release --output ./bin/Release /p:CustomPackageId=${{ env.PACKAGE_ID }} /p:PackageVersion=${{ env.PACKAGE_VERSION }}
-        #   if [[ -z "${{ env.PACKAGE_VERSION }}" ]]; then
-        #     #for devlopment br
-        #     dotnet pack --configuration Release --output ./bin/Release /p:CustomPackageId=${{ env.PACKAGE_ID }}
-        #   else
-        #     #for master and release
-        #     dotnet pack --configuration Release --output ./bin/Release /p:CustomPackageId=${{ env.PACKAGE_ID }} /p:PackageVersion=${{ env.PACKAGE_VERSION }}
-        #   fi
 
       - name: Push to Nexus Repository
         env:
@@ -61,10 +54,3 @@ jobs:
           NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
         run: |
           dotnet nuget push ./bin/Release/${{ env.PACKAGE_ID }}.${{ env.PACKAGE_VERSION }}.nupkg --source http://52.187.94.85:8081/repository/yashm-nuget/ --api-key $NEXUS_API_KEY
-        #   if [[ -z "${{ env.PACKAGE_VERSION }}" ]]; then
-        #     #for devlopment br with no vrsn
-        #     dotnet nuget push ./bin/Release/${{ env.PACKAGE_ID }}.nupkg --source http://52.187.94.85:8081/repository/yashm-nuget/ --api-key $NEXUS_API_KEY
-        #   else
-        #     #vrsn for master and release
-        #     dotnet nuget push ./bin/Release/${{ env.PACKAGE_ID }}.${{ env.PACKAGE_VERSION }}.nupkg --source http://52.187.94.85:8081/repository/yashm-nuget/ --api-key $NEXUS_API_KEY
-        #   fi
