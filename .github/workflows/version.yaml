@@ -31,8 +31,8 @@ jobs:
         run: |
           FOLDER_NAME="nexus-git-development"  
           if [[ "${{ github.ref }}" == "refs/heads/development" ]]; then
-            PACKAGE_ID="${FOLDER_NAME}.nexus-git-${{ github.run_id }}-development"
-            PACKAGE_VERSION="1.0.0"  
+            PACKAGE_ID="${FOLDER_NAME}.nexus-git"  
+            PACKAGE_VERSION="1.0.0-${{ github.run_id }}" 
           elif [[ "${{ github.ref }}" == "refs/heads/release" ]]; then
             COMMIT_ID=$(echo "${{ github.sha }}" | cut -c1-6)
             PACKAGE_ID="nexus-git-1.0.0-release-${COMMIT_ID}"
@@ -54,5 +54,5 @@ jobs:
           NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
           NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
         run: |
-          # Push the package to the Nexus repository
-          dotnet nuget push ./bin/Release/${{ env.PACKAGE_ID }}.${{ env.PACKAGE_VERSION }}.nupkg --source http://52.187.94.85:8081/repository/nuget-snapshot/nexus-git-development --api-key $NEXUS_API_KEY 
+          
+          dotnet nuget push ./bin/Release/${{ env.PACKAGE_ID }}.${{ env.PACKAGE_VERSION }}.nupkg --source http://52.187.94.85:8081/repository/nuget-snapshot/ --api-key $NEXUS_API_KEY
