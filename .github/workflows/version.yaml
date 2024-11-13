@@ -51,18 +51,17 @@ jobs:
         run: |
           dotnet pack --configuration Release --output ./bin/Release /p:CustomPackageId=${{ env.PACKAGE_ID }} /p:PackageVersion=${{ env.PACKAGE_VERSION }}
 
-    
-      - name: Wait for approval before deploying to Nexus
-        if: ${{ github.event_name == 'push' }}  # This can be changed to other conditions
-        uses: peter-evans/wait-for-approval@v1
-        with:
-          approval_required: true
-
+      # The next step will require manual approval
       - name: Push to Nexus Repository
         env:
           NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
           NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
           NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
         run: |
-          dotnet nuget push ./bin/Release/${{ env.PACKAGE_ID }}.${{ env.PACKAGE_VERSION }}.nupkg --source http://52.187.94.85:8081/repository/nuget-snapshot/ --api-key $NEXUS_API_KEY
-          
+          PACKAGE_PATH="./bin/Release/${{ env.PACKAGE_ID }}.${{ env.PACKAGE_VERSION }}.nupkg"
+          if [[ -f "$PACKAGE_PATH" ]]; then
+            echo "Pushing package to Nexus..."
+            dotnet nuget push "$PACKAGE_PATH" --source http://52.187.94.85:8081/repository/nuget-snapshot/ --api-key $NEXUS_API_KEY
+          else
+            echo "Package not found: $PACKAGE_PATH"
+            exit 1
