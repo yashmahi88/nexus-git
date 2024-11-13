@@ -47,6 +47,8 @@ jobs:
       - name: Pack project
         run: |
           dotnet pack --configuration Release --output ./bin/Release /p:CustomPackageId=${{ env.PACKAGE_ID }} /p:PackageVersion=${{ env.PACKAGE_VERSION }}
+          # List files in the output directory for debugging
+          ls -al ./bin/Release
 
       - name: Upload Package as Artifact
         uses: actions/upload-artifact@v3
@@ -65,6 +67,9 @@ jobs:
         with:
           name: nuget-package
           path: ./bin/Release
+
+      - name: List files in Release directory
+        run: ls -al ./bin/Release
 
       - name: Push to Nexus Repository
         env:
