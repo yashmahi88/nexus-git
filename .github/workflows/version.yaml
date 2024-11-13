@@ -10,7 +10,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: nexus-approval  # Define the environment here
 
     steps:
       - name: Checkout code
@@ -49,15 +48,16 @@ jobs:
         run: |
           dotnet pack --configuration Release --output ./bin/Release /p:CustomPackageId=${{ env.PACKAGE_ID }} /p:PackageVersion=${{ env.PACKAGE_VERSION }}
 
-      - name: Request approval to push to Nexus
-        if: ${{ github.ref == 'refs/heads/development' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/release' }}
-        run: echo "Waiting for manual approval before pushing to Nexus..."
+  push_to_nexus:
+    runs-on: ubuntu-latest
+    needs: build  # This job depends on the build job
+    environment: nexus-approval  # Require approval for this job
 
+    steps:
       - name: Push to Nexus Repository
-        if: ${{ github.ref == 'refs/heads/development' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/release' }}
         env:
           NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
           NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
           NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
         run: |
-          dotnet nuget push ./bin/Release/${{ env.PACKAGE_ID }}.${{ env.PACKAGE_VERSION }}.nupkg --source http://52.187.94.85:8081/repository/nuget-tag/ --api-key $NEXUS_API_KEY  
+          dotnet nuget push ./bin/Release/${{ env.PACKAGE_ID }}.${{ env.PACKAGE_VERSION }}.nupkg --source http://52.187.94.85:8081/repository/nuget-tag/ --api-key $NEXUS_API_KEY
