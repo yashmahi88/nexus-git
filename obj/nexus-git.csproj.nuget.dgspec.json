@@ -8,7 +8,7 @@
       "version": "1.0.0",
       "restore": {
         "projectUniqueName": "/home/einfochips/nexus-git/nexus-git.csproj",
-        "projectName": "nexus-git",
+        "projectName": "nexus-gitrele",
         "projectPath": "/home/einfochips/nexus-git/nexus-git.csproj",
         "packagesPath": "/home/einfochips/.nuget/packages/",
         "outputPath": "/home/einfochips/nexus-git/obj/",

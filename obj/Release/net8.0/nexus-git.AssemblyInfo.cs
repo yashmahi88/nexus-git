@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("nexus-git")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+795cd1cbda657decf69ec07cbc79929a462dead7")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c8348f261c91a0cefe15311ddcd20f81998dcaa9")]
 [assembly: System.Reflection.AssemblyProductAttribute("nexus-git")]
 [assembly: System.Reflection.AssemblyTitleAttribute("nexus-git")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
