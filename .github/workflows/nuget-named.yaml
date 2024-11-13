@@ -114,6 +114,6 @@ jobs:
       run: |
         echo "Pushing package: ./output/${{ env.PACKAGE_NAME }}"
         # Publish the package to Nexus with the version from the release branch
-        dotnet nuget push bin/Release/nexus-git.1.0.0.nupkg --source http://52.187.94.85:8081/repository/yashm-nuget/  --api-key ${{secrets.NEXUS_API_KEY}}
-#        dotnet nuget push "./output/${{ env.PACKAGE_NAME }}" --source http://52.187.94.85:8081/repository/yashm-nuget/ --api-key ${{ secrets.NEXUS_API_KEY }} 
+        # dotnet nuget push bin/Release/nexus-git.1.0.0.nupkg --source http://52.187.94.85:8081/repository/yashm-nuget/  --api-key ${{secrets.NEXUS_API_KEY}}
+        dotnet nuget push "./output/${{ env.PACKAGE_NAME }}" --source http://52.187.94.85:8081/repository/yashm-nuget/ --api-key ${{ secrets.NEXUS_API_KEY }} 
         
