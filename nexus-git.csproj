@@ -6,11 +6,9 @@
     <RootNamespace>nexus_git</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Version>$(PackageVersion)</Version>  
+    <PackageId>$(CustomPackageId)</PackageId> 
   </PropertyGroup>
-  <ItemGroup>
-    
-    <None Include="lib/nexus-git.dll" Pack="true" />
-  
-  </ItemGroup>
 
 </Project>
+
