@@ -105,3 +105,4 @@ jobs:
           PACKAGE_VERSION="${{ needs.build.outputs.package_version }}"
           dotnet nuget push ./bin/Release/${PACKAGE_ID}.${PACKAGE_VERSION}.nupkg --source http://52.187.94.85:8081/repository/nuget-tag/ --api-key $NEXUS_API_KEY
          
+ 
