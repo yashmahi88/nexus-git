@@ -32,6 +32,9 @@ jobs:
         run: |
           FOLDER_NAME="nexus-git"
           
+          # Fetch all tags to check the latest tag
+          git fetch --tags
+          
           # Check for the latest tag on the master branch
           TAG=$(git tag --sort=-creatordate | grep -E '^[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)
           
@@ -39,9 +42,9 @@ jobs:
             TAG="1.0.0"  # If no tag exists, default to 1.0.0
           fi
           
-          # Increment the version
+          # Increment the version (patch version)
           IFS='.' read -r -a VERSION_PARTS <<< "$TAG"
-          VERSION_PARTS[2]=$((VERSION_PARTS[2]+1))  # Increment patch version (3rd part of the tag)
+          VERSION_PARTS[2]=$((VERSION_PARTS[2]+1))  # Increment patch version
           PACKAGE_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.${VERSION_PARTS[2]}"
           PACKAGE_ID="nexus-git-${PACKAGE_VERSION}"
 
@@ -53,42 +56,17 @@ jobs:
 
       - name: Create Git Tag
         id: set_tag
-        if: github.ref == 'refs/heads/master'
         run: |
-          # Fetch all tags from the remote to ensure we check the latest tags
-          git fetch --tags
-
-          # Get the latest tag, sort by creation date (descending)
-          TAG=$(git tag --sort=-creatordate | grep -E '^[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)
-          
-          # If no tags exist, default to 1.0.0
-          if [ -z "$TAG" ]; then
-            TAG="1.0.0"
-          fi
-
-          # Increment the patch version
-          IFS='.' read -r -a VERSION_PARTS <<< "$TAG"
-          VERSION_PARTS[2]=$((VERSION_PARTS[2]+1))  # Increment the patch version (3rd part of the tag)
-          PACKAGE_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.${VERSION_PARTS[2]}"
-
-          # Check if the incremented version tag already exists
+          # Check if the tag already exists
           TAG_EXISTS=$(git tag --list "${PACKAGE_VERSION}")
-          
-          # If the tag exists, keep incrementing the version until a non-existent tag is found
-          while [ -n "$TAG_EXISTS" ]; do
-            VERSION_PARTS[2]=$((VERSION_PARTS[2]+1))  # Increment the patch version again
-            PACKAGE_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.${VERSION_PARTS[2]}"
-            TAG_EXISTS=$(git tag --list "${PACKAGE_VERSION}")
-          done
-
-          # Now we have a unique tag, create and push it
-          echo "Creating new tag: ${PACKAGE_VERSION}"
-          git tag ${PACKAGE_VERSION}
-          git push origin ${PACKAGE_VERSION}
-
-          # Set the new tag as the output for PACKAGE_VERSION so that it can be used later
-          echo "PACKAGE_VERSION=${PACKAGE_VERSION}" >> $GITHUB_ENV
-          echo "::set-output name=package_version::${PACKAGE_VERSION}"
+          if [ -z "$TAG_EXISTS" ]; then
+            # Create and push the new tag
+            echo "Creating new tag: ${PACKAGE_VERSION}"
+            git tag ${PACKAGE_VERSION}
+            git push origin ${PACKAGE_VERSION}
+          else
+            echo "Tag ${PACKAGE_VERSION} already exists. Skipping tag creation."
+          fi
 
       - name: Pack project
         run: |
@@ -124,5 +102,6 @@ jobs:
           NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
           NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
         run: |
+          # Use the correct package ID and version
           echo "Pushing package ${PACKAGE_VERSION} to Nexus..."
           dotnet nuget push ./bin/Release/${{ needs.build.outputs.package_id }}.${{ needs.build.outputs.package_version }}.nupkg --source http://52.187.94.85:8081/repository/nuget-tag/ --api-key $NEXUS_API_KEY
