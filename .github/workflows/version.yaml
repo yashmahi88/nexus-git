@@ -87,6 +87,11 @@ jobs:
             git tag ${PACKAGE_VERSION}
             git push origin ${PACKAGE_VERSION}
         
+            # Set the new tag as the output for PACKAGE_VERSION so that it can be used later
+            echo "PACKAGE_VERSION=${PACKAGE_VERSION}" >> $GITHUB_ENV
+            echo "::set-output name=package_version::${PACKAGE_VERSION}"
+          
+        
 
       - name: Pack project
         run: |
