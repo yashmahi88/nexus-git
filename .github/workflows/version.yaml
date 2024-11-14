@@ -74,7 +74,7 @@ jobs:
           # List files in the output directory for debugging
           ls -al ./bin/Release
 
-      - name: Upload Package as Artifact
+      - name: Upload Package as Artifact 
         uses: actions/upload-artifact@v3
         with:
           name: nuget-package
