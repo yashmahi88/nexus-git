@@ -108,4 +108,4 @@ jobs:
           NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
           NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
         run: |
-          dot net nuget push ./bin/Release/${{ steps.set_name.outputs.package_id }}.${{ steps.set_name.outputs.package_version }}.nupkg --source "Nexus" --api-key $NEXUS_API_KEY
+          dotnet nuget push ./bin/Release/${{ steps.set_name.outputs.package_id }}.${{ steps.set_name.outputs.package_version }}.nupkg --source "Nexus" --api-key $NEXUS_API_KEY
