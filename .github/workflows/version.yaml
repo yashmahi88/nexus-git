@@ -105,3 +105,4 @@ jobs:
           # Use the correct package ID and version
           echo "Pushing package ${PACKAGE_VERSION} to Nexus..."
           dotnet nuget push ./bin/Release/${{ needs.build.outputs.package_id }}.${{ needs.build.outputs.package_version }}.nupkg --source http://52.187.94.85:8081/repository/nuget-tag/ --api-key $NEXUS_API_KEY
+ 
