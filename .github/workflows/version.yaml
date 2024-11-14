@@ -90,14 +90,17 @@ jobs:
             # Set the new tag as the output for PACKAGE_VERSION so that it can be used later
             echo "PACKAGE_VERSION=${PACKAGE_VERSION}" >> $GITHUB_ENV
             echo "::set-output name=package_version::${PACKAGE_VERSION}"
+        
           
         
 
       - name: Pack project
         run: |
-          dotnet pack --configuration Release --output ./bin/Release /p:CustomPackageId=${{ steps.set_name.outputs.package_id }} /p:PackageVersion=${{ steps.set_name.outputs.package_version }}
-          # List files in the output directory for debugging
-          ls -al ./bin/Release
+              echo "Packing project with version: ${PACKAGE_VERSION}"
+              dotnet pack --configuration Release --output ./bin/Release /p:CustomPackageId=${{ env.PACKAGE_ID }} /p:PackageVersion=${{ env.PACKAGE_VERSION }}
+              # List files in the output directory for debugging
+              ls -al ./bin/Release
+          
 
       - name: Upload Package as Artifact
         uses: actions/upload-artifact@v3
