@@ -52,7 +52,7 @@ jobs:
           echo "::set-output name=package_id::${PACKAGE_ID}"
           echo "::set-output name=package_version::${PACKAGE_VERSION}"
 
-        - name: Create Git Tag
+      - name: Create Git Tag
         id: set_tag
         if: github.ref == 'refs/heads/master'
         run: |
