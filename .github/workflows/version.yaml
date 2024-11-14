@@ -11,7 +11,6 @@ jobs:
     outputs:
       package_id: ${{ steps.set_name.outputs.package_id }}
       package_version: ${{ steps.set_name.outputs.package_version }}
-      tag_name: ${{ steps.set_tag.outputs.tag_name }}
 
     steps:
       - name: Checkout code
@@ -46,9 +45,11 @@ jobs:
           PACKAGE_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.${VERSION_PARTS[2]}"
           PACKAGE_ID="nexus-git-${PACKAGE_VERSION}"
 
-          # Output the version and package name
+          # Output the version and package name to be used in other jobs
           echo "PACKAGE_ID=${PACKAGE_ID}" >> $GITHUB_ENV
           echo "PACKAGE_VERSION=${PACKAGE_VERSION}" >> $GITHUB_ENV
+          echo "::set-output name=package_id::${PACKAGE_ID}"
+          echo "::set-output name=package_version::${PACKAGE_VERSION}"
 
       - name: Create Git Tag
         id: set_tag
@@ -92,7 +93,7 @@ jobs:
       - name: Pack project
         run: |
           echo "Packing project with version: ${PACKAGE_VERSION}"
-          dotnet pack --configuration Release --output ./bin/Release /p:CustomPackageId=${{ env.PACKAGE_ID }} /p:PackageVersion=${{ env.PACKAGE_VERSION }}
+          dotnet pack --configuration Release --output ./bin/Release /p:CustomPackageId=${{ steps.set_name.outputs.package_id }} /p:PackageVersion=${{ steps.set_name.outputs.package_version }}
           # List files in the output directory for debugging
           ls -al ./bin/Release
 
@@ -100,11 +101,11 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: nuget-package
-          path: ./bin/Release/${{ env.PACKAGE_ID }}.${{ env.PACKAGE_VERSION }}.nupkg
+          path: ./bin/Release/${{ steps.set_name.outputs.package_id }}.${{ steps.set_name.outputs.package_version }}.nupkg
 
   push_to_nexus:
     runs-on: ubuntu-latest
-    needs: build  
+    needs: build  # Ensure this job runs after the build job
     environment: nexus-approval  
 
     steps:
@@ -124,4 +125,4 @@ jobs:
           NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
         run: |
           echo "Pushing package ${PACKAGE_VERSION} to Nexus..."
-          dotnet nuget push ./bin/Release/${{ env.PACKAGE_ID }}.${{ env.PACKAGE_VERSION }}.nupkg --source http://52.187.94.85:8081/repository/nuget-tag/ --api-key $NEXUS_API_KEY
+          dotnet nuget push ./bin/Release/${{ needs.build.outputs.package_id }}.${{ needs.build.outputs.package_version }}.nupkg --source http://52.187.94.85:8081/repository/nuget-tag/ --api-key $NEXUS_API_KEY
