@@ -46,7 +46,7 @@ jobs:
             # Get the latest tag and increment the version
             TAG=$(git tag --sort=-creatordate | grep '^v' | head -n 1)
             if [ -z "$TAG" ]; then
-              TAG="v1.0.0"
+              TAG="1.0.0"
             fi
             # Increment the version
             VERSION=${TAG#v}
