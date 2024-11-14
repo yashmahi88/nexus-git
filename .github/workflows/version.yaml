@@ -51,8 +51,8 @@ jobs:
             # Increment the version
             VERSION=${TAG}
             IFS='.' read -r -a VERSION_PARTS <<< "$VERSION"
-            VERSION_PARTS[2]=$((VERSION_PARTS[2]+1)) # Increment the patch version
-            PACKAGE_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.${VERSION_PARTS[2]}"
+            VERSION_PARTS[1]=$((VERSION_PARTS[1]+1)) # Increment the minor version
+            PACKAGE_VERSION="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.0"
             PACKAGE_ID="nexus-git-${PACKAGE_VERSION}"
           fi 
           echo "PACKAGE_ID=${PACKAGE_ID}" >> $GITHUB_ENV
