@@ -3,7 +3,7 @@ name: Publish Package
 on:
   push:
     branches:
-      - master  # Trigger on the master branch only
+      - master  # Trigger on master branch only
 
 jobs:
   build:
@@ -56,8 +56,12 @@ jobs:
         id: set_tag
         if: github.ref == 'refs/heads/master'
         run: |
+          # Fetch all tags from the remote to ensure we check the latest tags
+          git fetch --tags
+          
           # Check if the tag already exists
           TAG_EXISTS=$(git tag --list "${PACKAGE_VERSION}")
+          
           if [ -z "$TAG_EXISTS" ]; then
             # Create and push the new tag
             echo "Creating tag ${PACKAGE_VERSION}"
@@ -104,5 +108,4 @@ jobs:
           PACKAGE_ID="${{ needs.build.outputs.package_id }}"
           PACKAGE_VERSION="${{ needs.build.outputs.package_version }}"
           dotnet nuget push ./bin/Release/${PACKAGE_ID}.${PACKAGE_VERSION}.nupkg --source http://52.187.94.85:8081/repository/nuget-tag/ --api-key $NEXUS_API_KEY
-         
-  
+          
