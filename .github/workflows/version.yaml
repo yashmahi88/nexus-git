@@ -3,49 +3,55 @@ name: Publish Package
 on:
   push:
     branches:
-      - development  
-      - release
       - master
+      - development
+      - release
+    tags:
+      - '*'  
 
 jobs:
   build:
+    uses: ./.github/workflows/build.yml  
+    with:
+      branch: ${{ github.ref }}  
+
+    outputs:
+      package_id: ${{ steps.set_name.outputs.package_id }}
+      package_version: ${{ steps.set_name.outputs.package_version }}
+
+pack:
     runs-on: ubuntu-latest
-
+    needs: build
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v2
-        with:
-          dotnet-version: '8.0.x'  #the .net vrsn u are using
-
-      - name: Restore dependencies
-        run: dotnet restore
-
-      - name: Build project
-        run: dotnet build --configuration Release
-
-      - name: Set package name and version
-        id: set_name
-        run: |
-          if [[ "${{ github.ref }}" == "refs/heads/development" ]]; then
-            PACKAGE_ID="nexus-git-${{ github.run_id }}-development"
-            PACKAGE_VERSION="1.0.0"  
-          elif [[ "${{ github.ref }}" == "refs/heads/release" ]]; then
-            COMMIT_ID=$(echo "${{ github.sha }}" | cut -c1-6)
-            PACKAGE_ID="nexus-git-1.0.0-release-${COMMIT_ID}"
-            PACKAGE_VERSION="1.0.0-release-${COMMIT_ID}"
-          elif [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
-            PACKAGE_ID="nexus-git-1.0.0"
-            PACKAGE_VERSION="1.0.0"
-          fi 
-          echo "PACKAGE_ID=${PACKAGE_ID}" >> $GITHUB_ENV
-          echo "PACKAGE_VERSION=${PACKAGE_VERSION}" >> $GITHUB_ENV
-
       - name: Pack project
         run: |
-          dotnet pack --configuration Release --output ./bin/Release /p:CustomPackageId=${{ env.PACKAGE_ID }} /p:PackageVersion=${{ env.PACKAGE_VERSION }}
+            echo "Packaging with version: ${{ needs.build.outputs.package_version }}"
+            dotnet pack --configuration Release --output ./bin/Release \
+              /p:CustomPackageId=${{ needs.build.outputs.package_id }} \
+              /p:PackageVersion=${{ needs.build.outputs.package_version }}
+            
+            ls -al ./bin/Release
+
+      - name: Upload Package as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: nuget-package
+          path: ./bin/Release/${{ needs.build.outputs.package_id }}.${{ needs.build.outputs.package_version }}.nupkg
+
+  push_to_nexus:
+    runs-on: ubuntu-latest
+    needs: pack
+    environment: nexus-approval
+
+    steps:
+      - name: Download Package Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: nuget-package
+          path: ./bin/Release
+
+      - name: List files in Release directory
+        run: ls -al ./bin/Release
 
       - name: Push to Nexus Repository
         env:
@@ -53,4 +59,4 @@ jobs:
           NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
           NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
         run: |
-          dotnet nuget push ./bin/Release/${{ env.PACKAGE_ID }}.${{ env.PACKAGE_VERSION }}.nupkg --source http://52.187.94.85:8081/repository/nuget-rc/ --api-key $NEXUS_API_KEY
+          dotnet nuget push ./bin/Release/${{ needs.pack.outputs.package_id }}.${{ needs.pack.outputs.package_version }}.nupkg --source http://52.187.94.85:8081/repository/nuget-tag/ --api-key $NEXUS_API_KEY
