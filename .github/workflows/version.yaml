@@ -22,12 +22,13 @@ jobs:
     steps:
       - name: Pack project
         run: |
-            echo "Packaging with version: ${{ needs.build.outputs.package_version }}"
-            dotnet pack ./nexus-git.csproj --configuration Release --output ./bin/Release \
-              /p:CustomPackageId=${{ needs.build.outputs.package_id }} \
-              /p:PackageVersion=${{ needs.build.outputs.package_version }}
-            
-            ls -al ./bin/Release
+          echo "Packaging with version: ${{ needs.build.outputs.package_version }}"
+          dotnet pack ./nexus-git.csproj --configuration Release --output ./bin/Release \
+            /p:CustomPackageId=${{ needs.build.outputs.package_id }} \
+            /p:PackageVersion=${{ needs.build.outputs.package_version }}
+          
+          ls -al ./bin/Release
+      
 
       - name: Upload Package as Artifact
         uses: actions/upload-artifact@v3
