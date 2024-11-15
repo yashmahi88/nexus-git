@@ -20,6 +20,11 @@ jobs:
     needs: build  
 
     steps:
+      - name: List files in the repository
+        run: |
+          echo "Listing files in the repository"
+          ls -al
+      
       - name: Pack project
         run: |
           echo "Packaging with version: ${{ needs.build.outputs.package_version }}"
