@@ -23,7 +23,7 @@ jobs:
       - name: Pack project
         run: |
             echo "Packaging with version: ${{ needs.build.outputs.package_version }}"
-            dotnet pack --configuration Release --output ./bin/Release \
+            dotnet pack ./nexus-git.csproj --configuration Release --output ./bin/Release \
               /p:CustomPackageId=${{ needs.build.outputs.package_id }} \
               /p:PackageVersion=${{ needs.build.outputs.package_version }}
             
