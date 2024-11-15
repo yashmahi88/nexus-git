@@ -15,13 +15,10 @@ jobs:
     with:
       branch: ${{ github.ref }}  
 
-    outputs:
-      package_id: ${{ steps.set_name.outputs.package_id }}
-      package_version: ${{ steps.set_name.outputs.package_version }}
-
-pack:
+  pack:
     runs-on: ubuntu-latest
-    needs: build
+    needs: build  
+
     steps:
       - name: Pack project
         run: |
@@ -40,7 +37,7 @@ pack:
 
   push_to_nexus:
     runs-on: ubuntu-latest
-    needs: pack
+    needs: pack  
     environment: nexus-approval
 
     steps:
