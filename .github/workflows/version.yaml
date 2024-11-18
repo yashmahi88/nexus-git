@@ -79,6 +79,8 @@ jobs:
     runs-on: windows-latest
     needs: build  
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2 
       - name: SonarQube Scan
         uses: ./.github/actions/sonar-scan 
 
