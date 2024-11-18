@@ -1,6 +1,14 @@
 name: 'SonarQube Scan'
 description: 'Run SonarQube analysis on the project'
 
+inputs:
+  github_token:
+    description: 'GitHub Token'
+    required: true
+  sonar_token:
+    description: 'Sonar Token'
+    required: true
+
 runs:
   using: "composite"
   steps:
@@ -38,10 +46,10 @@ runs:
 
     - name: Build and analyze
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        GITHUB_TOKEN: ${{ inputs.github_token }}  #
+        SONAR_TOKEN: ${{ inputs.sonar_token }}   
       shell: powershell
       run: |
-        .\.sonar\scanner\dotnet-sonarscanner begin /k:"yashmahi88_nexus-git" /o:"yashmahi0404" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
+        .\.sonar\scanner\dotnet-sonarscanner begin /k:"yashmahi88_nexus-git" /o:"yashmahi0404" /d:sonar.token="${{ inputs.sonar_token }}" /d:sonar.host.url="https://sonarcloud.io"
         dotnet build
-        .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+        .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ inputs.sonar_token }}"
