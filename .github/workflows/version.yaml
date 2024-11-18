@@ -82,3 +82,14 @@ jobs:
         with:
           name: nuget-package
           path: ./bin/Release
+
+      - name: List files in Release directory
+        run: ls -al ./bin/Release
+  
+      - name: Push to Nexus Repository
+        env:
+            NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+            NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+            NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
+        run: |
+            dotnet nuget push ./bin/Release/${{ needs.build.outputs.package_id }}.${{ needs.build.outputs.package_version }}.nupkg --source http://52.187.94.85:8081/repository/nuget-snapshot --api-key $NEXUS_API_KEY
