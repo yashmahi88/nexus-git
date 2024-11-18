@@ -5,9 +5,10 @@ on:
     branches:
       - master
     tags:
-      - '*'  
+      - '*'
+     
 
-jobs:
+jobs: 
   build:
     runs-on: ubuntu-latest
 
@@ -19,7 +20,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2 
 
-      - name: Build Project
+      - name: Build Project 
         uses: ./.github/actions/build  
 
       - name: Set package name and version
@@ -29,7 +30,7 @@ jobs:
           FOLDER_NAME="nexus-git-development"
           PACKAGE_ID=""
           PACKAGE_VERSION=""
-      
+
           if [[ "${{ github.ref }}" == refs/tags/* ]]; then
             
             if [[ "${{ github.event.before }}" == "${{ github.sha }}" && "${{ github.ref }}" == refs/tags/* ]]; then
@@ -51,7 +52,7 @@ jobs:
               echo "Please provide a tag with the master branch, can't proceed further"
             fi
           fi
-          
+           
         
           echo "PACKAGE_ID=${PACKAGE_ID}" >> $GITHUB_ENV
           echo "PACKAGE_VERSION=${PACKAGE_VERSION}" >> $GITHUB_ENV
@@ -73,6 +74,17 @@ jobs:
         with:
           name: nuget-package
           path: ./bin/Release/${{ steps.set_name.outputs.package_id }}.${{ steps.set_name.outputs.package_version }}.nupkg
+  sonar_scan:
+    runs-on: windows-latest
+    needs: build  
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2 
+      - name: SonarQube Scan
+        uses: ./.github/actions/sonar-scan
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}  
+          sonar_token: ${{ secrets.SONAR_TOKEN }} 
 
   push_to_nexus:
     runs-on: ubuntu-latest
