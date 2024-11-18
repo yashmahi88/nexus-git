@@ -44,8 +44,8 @@ jobs:
             if [[ "${{ github.ref }}" == "refs/heads/development" ]]; then
               PACKAGE_ID="${FOLDER_NAME}.nexus-git"
               PACKAGE_VERSION="1.0.0-${{ github.run_id }}"
-            elif [[ "${{ github.ref }}" == "refs/heads/release" ]]; then
-              COMMIT_ID=$(echo "${{ github.sha }}" | cut -c1-6)
+            elif [[ "${{ github.ref }}" == "refs/heads/release" ]]; then 
+              COMMIT_ID=$(echo "${{ github.sha }}" | cut -c1-6) 
               PACKAGE_ID="nexus-git-1.0.0-release-${COMMIT_ID}"  
               PACKAGE_VERSION="1.0.0-release-${COMMIT_ID}"
             elif [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
