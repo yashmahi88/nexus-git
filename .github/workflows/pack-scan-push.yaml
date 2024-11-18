@@ -41,7 +41,7 @@ jobs:
             else
               echo "Error: Tags can only be pushed from the master branch."
               exit 1
-            fi
+            fi 
           else
             if [[ "${{ github.ref }}" == "refs/heads/development" ]]; then
               PACKAGE_ID="${FOLDER_NAME}.nexus-git"
