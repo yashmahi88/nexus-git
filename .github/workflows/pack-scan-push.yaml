@@ -32,7 +32,7 @@ jobs:
           PACKAGE_VERSION=""
 
           if [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            
+             
             if [[ "${{ github.event.before }}" == "${{ github.sha }}" && "${{ github.ref }}" == refs/tags/* ]]; then
               TAG_NAME="${GITHUB_REF#refs/tags/}"
               PACKAGE_ID="nexus-git-${TAG_NAME}"
