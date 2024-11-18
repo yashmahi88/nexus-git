@@ -33,7 +33,7 @@ jobs:
 
           if [[ "${{ github.ref }}" == refs/tags/* ]]; then
             
-            if [["${{ github.ref }}" == refs/tags/*  && "${{ github.base_ref }}" == "master"]]; then
+            if [["${{ github.base_ref }}" == "master"]]; then
               TAG_NAME="${GITHUB_REF#refs/tags/}"
               PACKAGE_ID="nexus-git-${TAG_NAME}"
               PACKAGE_VERSION="${TAG_NAME}"
