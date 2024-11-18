@@ -4,46 +4,72 @@ on:
   push:
     branches:
       - master
-      - development
-      - release
     tags:
       - '*'  
 
 jobs:
   build:
-    uses: ./.github/workflows/build.yaml  
-    with:
-      branch: ${{ github.ref }}  
-
-  pack:
     runs-on: ubuntu-latest
-    needs: build  
+
+    outputs:
+      package_id: ${{ steps.set_name.outputs.package_id }}
+      package_version: ${{ steps.set_name.outputs.package_version }}
 
     steps:
-      - name: List files in the repository
+      - name: Build Project
+        uses: ./.github/actions/build  
+
+      - name: Set package name and version
+        id: set_name
         run: |
-          echo "Listing files in the repository"
-          ls -al
+          echo "Checking GITHUB_REF: $GITHUB_REF"
+          
+          FOLDER_NAME="nexus-git-development"
+          PACKAGE_ID=""
+          PACKAGE_VERSION=""
+
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            TAG_NAME="${GITHUB_REF#refs/tags/}"
+            PACKAGE_ID="nexus-git-${TAG_NAME}"
+            PACKAGE_VERSION="${TAG_NAME}"
+          else
+            if [[ "${{ github.ref }}" == "refs/heads/development" ]]; then
+              PACKAGE_ID="${FOLDER_NAME}.nexus-git"
+              PACKAGE_VERSION="1.0.0-${{ github.run_id }}"
+            elif [[ "${{ github.ref }}" == "refs/heads/release" ]]; then
+              COMMIT_ID=$(echo "${{ github.sha }}" | cut -c1-6)
+              PACKAGE_ID="nexus-git-1.0.0-release-${COMMIT_ID}"
+              PACKAGE_VERSION="1.0.0-release-${COMMIT_ID}"
+            elif [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
+              PACKAGE_ID="nexus-git-1.0.1"
+              PACKAGE_VERSION="1.0.1"
+            fi
+          fi
+        
+          echo "PACKAGE_ID=${PACKAGE_ID}" >> $GITHUB_ENV
+          echo "PACKAGE_VERSION=${PACKAGE_VERSION}" >> $GITHUB_ENV
+          echo "::set-output name=package_id::${PACKAGE_ID}"
+          echo "::set-output name=package_version::${PACKAGE_VERSION}"
       
+          echo "PACKAGE_ID: $PACKAGE_ID"
+          echo "PACKAGE_VERSION: $PACKAGE_VERSION"
+
       - name: Pack project
         run: |
-          echo "Packaging with version: ${{ needs.build.outputs.package_version }}"
-          dotnet pack ./nexus-git.csproj --configuration Release --output ./bin/Release \
-            /p:CustomPackageId=${{ needs.build.outputs.package_id }} \
-            /p:PackageVersion=${{ needs.build.outputs.package_version }}
-          
-          ls -al ./bin/Release
-      
+            echo "Packaging with version: ${{ steps.set_name.outputs.package_version }}"
+            dotnet pack --configuration Release --output ./bin/Release \
+              /p:CustomPackageId=${{ steps.set_name.outputs.package_id }} \
+              /p:PackageVersion=${{ steps.set_name.outputs.package_version }}
 
       - name: Upload Package as Artifact
         uses: actions/upload-artifact@v3
         with:
           name: nuget-package
-          path: ./bin/Release/${{ needs.build.outputs.package_id }}.${{ needs.build.outputs.package_version }}.nupkg
+          path: ./bin/Release/${{ steps.set_name.outputs.package_id }}.${{ steps.set_name.outputs.package_version }}.nupkg
 
   push_to_nexus:
     runs-on: ubuntu-latest
-    needs: pack  
+    needs: build
     environment: nexus-approval
 
     steps:
@@ -54,7 +80,7 @@ jobs:
           path: ./bin/Release
 
       - name: List files in Release directory
-        run: ls -al ./bin/Release
+        run: ls -al ./ bin/Release
 
       - name: Push to Nexus Repository
         env:
@@ -62,4 +88,4 @@ jobs:
           NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
           NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
         run: |
-          dotnet nuget push ./bin/Release/${{ needs.pack.outputs.package_id }}.${{ needs.pack.outputs.package_version }}.nupkg --source http://52.187.94.85:8081/repository/nuget-tag/ --api-key $NEXUS_API_KEY
+          dotnet nuget push ./bin/Release/${{ needs.build.outputs.package_id }}.${{ needs.build.outputs.package_version }}.nupkg --source http://52.187.94.85:8081/repository/nuget-tag/ --api-key $NEXUS_API_KEY
