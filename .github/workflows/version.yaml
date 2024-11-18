@@ -75,10 +75,16 @@ jobs:
         with:
           name: nuget-package
           path: ./bin/Release/${{ steps.set_name.outputs.package_id }}.${{ steps.set_name.outputs.package_version }}.nupkg
+  sonar_scan:
+    runs-on: windows-latest
+    needs: build  
+    steps:
+      - name: SonarQube Scan
+        uses: ./.github/actions/sonar-scan 
 
   push_to_nexus:
     runs-on: ubuntu-latest
-    needs: build
+    needs: sonar_scan
     environment: nexus-approval
 
     steps:
