@@ -30,6 +30,16 @@ jobs:
           PACKAGE_ID=""
           PACKAGE_VERSION=""
 
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            
+            if [[ "${{ github.event.before }}" == "${{ github.sha }}" && "${{ github.ref }}" == refs/tags/* ]]; then
+              TAG_NAME="${GITHUB_REF#refs/tags/}"
+              PACKAGE_ID="nexus-git-${TAG_NAME}"
+              PACKAGE_VERSION="${TAG_NAME}"
+            else
+              echo "tag is not pushed from the master branch, skipping this process"
+            fi
+          else
             if [[ "${{ github.ref }}" == "refs/heads/development" ]]; then
               PACKAGE_ID="${FOLDER_NAME}.nexus-git"
               PACKAGE_VERSION="1.0.0-${{ github.run_id }}"
@@ -37,7 +47,10 @@ jobs:
               COMMIT_ID=$(echo "${{ github.sha }}" | cut -c1-6)
               PACKAGE_ID="nexus-git-1.0.0-release-${COMMIT_ID}"
               PACKAGE_VERSION="1.0.0-release-${COMMIT_ID}"
+            elif [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
+              echo "Please provide a tag with the master branch, can't proceed further"
             fi
+          fi
           
         
           echo "PACKAGE_ID=${PACKAGE_ID}" >> $GITHUB_ENV
