@@ -17,39 +17,24 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2 
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v2
-        with:
-          dotnet-version: '8.0.x'
-
-      - name: Restore dependencies
-        run: dotnet restore
-
-      - name: Build project
-        run: dotnet build --configuration Release
+      - name: Build Project
+        uses: ./.github/actions/build  
 
       - name: Set package name and version
         id: set_name
         run: |
           echo "Checking GITHUB_REF: $GITHUB_REF"
-          
-          
           FOLDER_NAME="nexus-git-development"
-      
-          
+          PACKAGE_ID=""
+          PACKAGE_VERSION=""
+
           if [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            
             TAG_NAME="${GITHUB_REF#refs/tags/}"
-            echo "Tag name extracted: ${TAG_NAME}"
-            
-            
             PACKAGE_ID="nexus-git-${TAG_NAME}"
-            PACKAGE_VERSION="${TAG_NAME}"  
-            
+            PACKAGE_VERSION="${TAG_NAME}"
           else
-            
             if [[ "${{ github.ref }}" == "refs/heads/development" ]]; then
               PACKAGE_ID="${FOLDER_NAME}.nexus-git"
               PACKAGE_VERSION="1.0.0-${{ github.run_id }}"
@@ -63,17 +48,13 @@ jobs:
             fi
           fi
         
-         
           echo "PACKAGE_ID=${PACKAGE_ID}" >> $GITHUB_ENV
           echo "PACKAGE_VERSION=${PACKAGE_VERSION}" >> $GITHUB_ENV
           echo "::set-output name=package_id::${PACKAGE_ID}"
           echo "::set-output name=package_version::${PACKAGE_VERSION}"
       
-          
           echo "PACKAGE_ID: $PACKAGE_ID"
           echo "PACKAGE_VERSION: $PACKAGE_VERSION"
-      
-       
 
       - name: Pack project
         run: |
@@ -81,10 +62,6 @@ jobs:
             dotnet pack --configuration Release --output ./bin/Release \
               /p:CustomPackageId=${{ steps.set_name.outputs.package_id }} \
               /p:PackageVersion=${{ steps.set_name.outputs.package_version }}
-            
-            ls -al ./bin/Release
-        
-        
 
       - name: Upload Package as Artifact
         uses: actions/upload-artifact@v3
@@ -106,11 +83,11 @@ jobs:
 
       - name: List files in Release directory
         run: ls -al ./bin/Release
-
+  
       - name: Push to Nexus Repository
         env:
-          NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
-          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
-          NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
+            NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+            NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+            NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
         run: |
-          dotnet nuget push ./bin/Release/${{ needs.build.outputs.package_id }}.${{ needs.build.outputs.package_version }}.nupkg --source http://52.187.94.85:8081/repository/nuget-tag/ --api-key $NEXUS_API_KEY
+            dotnet nuget push ./bin/Release/${{ needs.build.outputs.package_id }}.${{ needs.build.outputs.package_version }}.nupkg --source http://52.187.94.85:8081/repository/nuget-tag --api-key $NEXUS_API_KEY
