@@ -32,13 +32,15 @@ jobs:
           PACKAGE_VERSION=""
 
           if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            TAG_NAME="${GITHUB_REF#refs/tags/}"
             
-            if [["${{ github.base_ref }}" == "master"]]; then
-              TAG_NAME="${GITHUB_REF#refs/tags/}"
+          
+            if [[ "${{ github.base_ref }}" == "master" ]]; then
               PACKAGE_ID="nexus-git-${TAG_NAME}"
               PACKAGE_VERSION="${TAG_NAME}"
             else
-              echo "tag is not pushed from the master branch, skipping this process"
+              echo "Error: Tags can only be pushed from the master branch."
+              exit 1
             fi
           else
             if [[ "${{ github.ref }}" == "refs/heads/development" ]]; then
