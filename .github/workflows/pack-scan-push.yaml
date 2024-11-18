@@ -21,7 +21,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2 
 
-      - name: Build Project
+      - name: Build Project 
         uses: ./.github/actions/build  
 
       - name: Set package name and version
