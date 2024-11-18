@@ -33,14 +33,11 @@ jobs:
           if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
             TAG_NAME="${GITHUB_REF#refs/tags/}"
 
-            # Fetch the latest commit on the master branch
             git fetch origin master
             MASTER_COMMIT=$(git rev-parse origin/master)
 
-            # Get the commit that the tag points to
             TAG_COMMIT=$(git rev-parse "${GITHUB_REF}")
 
-            # Check if the tag commit is the same as the latest master commit
             if [[ "$TAG_COMMIT" == "$MASTER_COMMIT" ]]; then
               PACKAGE_ID="nexus-git-${TAG_NAME}"
               PACKAGE_VERSION="${TAG_NAME}"
