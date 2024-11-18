@@ -3,7 +3,6 @@ name: Publish Package
 on:
   push:
     branches:
-      - master
       - development
       - release
      
@@ -38,9 +37,6 @@ jobs:
               COMMIT_ID=$(echo "${{ github.sha }}" | cut -c1-6)
               PACKAGE_ID="nexus-git-1.0.0-release-${COMMIT_ID}"
               PACKAGE_VERSION="1.0.0-release-${COMMIT_ID}"
-            elif [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
-              PACKAGE_ID="nexus-git-1.0.1"
-              PACKAGE_VERSION="1.0.1"
             fi
           
         
