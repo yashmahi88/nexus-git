@@ -4,16 +4,18 @@ on:
   push:
     branches:
       - master
+      - development
+      - release
     tags:
       - '*'
 
-jobs: 
+env:
+  PACKAGE_ID: ""
+  PACKAGE_VERSION: ""
+
+jobs:
   build:
     runs-on: ubuntu-latest
-
-    outputs:
-      package_id: ${{ steps.set_name.outputs.package_id }}
-      package_version: ${{ steps.set_name.outputs.package_version }}
 
     steps:
       - name: Checkout code
@@ -27,8 +29,6 @@ jobs:
         run: |
           echo "Checking GITHUB_REF: $GITHUB_REF"
           FOLDER_NAME="nexus-git-development"
-          PACKAGE_ID=""
-          PACKAGE_VERSION=""
 
           if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
             TAG_NAME="${GITHUB_REF#refs/tags/}"
@@ -39,62 +39,84 @@ jobs:
             TAG_COMMIT=$(git rev-parse "${GITHUB_REF}")
 
             if [[ "$TAG_COMMIT" == "$MASTER_COMMIT" ]]; then
-              PACKAGE_ID="nexus-git-${TAG_NAME}"
-              PACKAGE_VERSION="${TAG_NAME}"
+              export PACKAGE_ID="nexus-git-${TAG_NAME}"
+              export PACKAGE_VERSION="${TAG_NAME}"
             else
               echo "Error: Tags must be created on the master branch."
               exit 1
             fi
-          else
-            if [[ "${GITHUB_REF}" == "refs/heads/development" ]]; then
-              PACKAGE_ID="${FOLDER_NAME}.nexus-git"
-              PACKAGE_VERSION="1.0.0-${GITHUB_RUN_ID}"
-            elif [[ "${GITHUB_REF}" == "refs/heads/release" ]]; then
-              COMMIT_ID=$(echo "${GITHUB_SHA}" | cut -c1-6)
-              PACKAGE_ID="nexus-git-1.0.0-release-${COMMIT_ID}"
-              PACKAGE_VERSION="1.0.0-release-${COMMIT_ID}"
-            elif [[ "${GITHUB_REF}" == "refs/heads/master" ]]; then
-              echo "Advised to provide tag with the master branch, can't proceed further."
-            fi
+          elif [[ "${GITHUB_REF}" == "refs/heads/development" ]]; then
+            export PACKAGE_ID="${FOLDER_NAME}.nexus-git"
+            export PACKAGE_VERSION="1.0.0-${GITHUB_RUN_ID}"
+          elif [[ "${GITHUB_REF}" == "refs/heads/release" ]]; then
+            COMMIT_ID=$(echo "${GITHUB_SHA}" | cut -c1-6)
+            export PACKAGE_ID="nexus-git-1.0.0-release-${COMMIT_ID}"
+            export PACKAGE_VERSION="1.0.0-release-${COMMIT_ID}"
+          elif [[ "${GITHUB_REF}" == "refs/heads/master" ]]; then
+            echo "Advised to provide tag with the master branch, can't proceed further."
+            exit 1
           fi 
 
           echo "PACKAGE_ID=${PACKAGE_ID}" >> $GITHUB_ENV
           echo "PACKAGE_VERSION=${PACKAGE_VERSION}" >> $GITHUB_ENV
-          echo "::set-output name=package_id::${PACKAGE_ID}"
-          echo "::set-output name=package_version::${PACKAGE_VERSION}"
 
           echo "PACKAGE_ID: $PACKAGE_ID"
           echo "PACKAGE_VERSION: $PACKAGE_VERSION"
 
       - name: Pack project
         run: |
-          echo "Packaging with version: ${{ env.PACKAGE_VERSION }}"
+          echo "Packaging with version: $PACKAGE_VERSION"
           dotnet pack --configuration Release --output ./bin/Release \
-            /p:CustomPackageId=${{ env.PACKAGE_ID }} \
-            /p:PackageVersion=${{ env.PACKAGE_VERSION }}
+            /p:CustomPackageId=$PACKAGE_ID \
+            /p:PackageVersion=$PACKAGE_VERSION
 
       - name: Upload Package as Artifact
         uses: actions/upload-artifact@v3
         with:
           name: nuget-package
-          path: ./bin/Release/${{ steps.set_name.outputs.package_id }}.${{ steps.set_name.outputs.package_version }}.nupkg
+          path: ./bin/Release/$PACKAGE_ID.$PACKAGE_VERSION.nupkg
 
   sonar_scan:
-    runs-on: windows-latest
-    needs: build  
+    runs-on: ubuntu-latest
+    needs: build
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2 
-      - name: SonarQube Scan
+
+      - name: Run SonarQube Analysis
         uses: ./.github/actions/sonar-scan
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}  
-          sonar_token: ${{ secrets.SONAR_TOKEN }} 
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          sonar_token: ${{ secrets.SONAR_TOKEN }}
+
+      - name: Check Quality Gate (Master Branch with Tag Only)
+        if: startsWith(github.ref, 'refs/heads/master') && startsWith(github.ref, 'refs/tags/')
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          QUALITY_GATE_STATUS=$(curl -s -u "${{ secrets.SONAR_TOKEN }}:" \
+            "https://sonarcloud.io/api/qualitygates/project_status?projectKey=yashmahi88_nexus-git" \
+            | jq -r '.projectStatus.status')
+
+          echo "Quality Gate Status: $QUALITY_GATE_STATUS"
+
+          if [[ "$QUALITY_GATE_STATUS" != "OK" ]]; then
+            echo "Quality Gate failed. Exiting..."
+            exit 1
+          fi
+
+      - name: Skip Quality Gate Check (Master Without Tag)
+        if: github.ref == 'refs/heads/master' && !startsWith(github.ref, 'refs/tags/')
+        run: |
+          echo "Master branch detected but no tag provided. Skipping Quality Gate check."
+
 
   push_to_nexus:
     runs-on: ubuntu-latest
-    needs: build
+    needs: sonar_scan
     environment: nexus-approval
+    if: github.ref == 'refs/heads/master'
 
     steps:
       - name: Download Package Artifact
@@ -108,8 +130,10 @@ jobs:
   
       - name: Push to Nexus Repository
         env:
-            NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
-            NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
-            NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
+          NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+          NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+          NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
         run: |
-            dotnet nuget push ./bin/Release/${{ needs.build.outputs.package_id }}.${{ needs.build.outputs.package_version }}.nupkg --source http://52.187.94.85:8081/repository/nuget-tag --api-key $NEXUS_API_KEY
+          dotnet nuget push ./bin/Release/${PACKAGE_ID}.${PACKAGE_VERSION}.nupkg \
+            --source http://52.187.94.85:8081/repository/nuget-rc \
+            --api-key $NEXUS_API_KEY
