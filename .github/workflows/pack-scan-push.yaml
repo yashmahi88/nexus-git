@@ -77,7 +77,7 @@ jobs:
           path: ./bin/Release/$PACKAGE_ID.$PACKAGE_VERSION.nupkg
 
   sonar_scan:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     needs: build
 
     steps:
