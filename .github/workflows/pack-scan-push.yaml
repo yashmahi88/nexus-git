@@ -101,6 +101,7 @@ jobs:
               echo "Quality Gate failed. Stopping the workflow."
               exit 1
             fi
+        shell: bash
   push_to_nexus:
     runs-on: ubuntu-latest
     needs: sonar_scan
