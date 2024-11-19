@@ -91,10 +91,11 @@ jobs:
           sonar_token: ${{ secrets.SONAR_TOKEN }}
 
       - name: Check Quality Gate (Master Branch with Tag Only)
-        if: startsWith(github.ref, 'refs/heads/master') && startsWith(github.ref, 'refs/tags/')
+        if: github.ref == 'refs/heads/master' && startsWith(env.GITHUB_REF, 'refs/tags/')
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
+          echo "Checking Quality Gate for Master branch with a tag."
           QUALITY_GATE_STATUS=$(curl -s -u "${{ secrets.SONAR_TOKEN }}:" \
             "https://sonarcloud.io/api/qualitygates/project_status?projectKey=yashmahi88_nexus-git" \
             | jq -r '.projectStatus.status')
@@ -107,10 +108,9 @@ jobs:
           fi
 
       - name: Skip Quality Gate Check (Master Without Tag)
-        if: github.ref == 'refs/heads/master' && !startsWith(github.ref, 'refs/tags/')
+        if: github.ref == 'refs/heads/master' && !startsWith(env.GITHUB_REF, 'refs/tags/')
         run: |
-          echo "Master branch detected but no tag provided. Skipping Quality Gate check."
-
+          echo "Master branch detected but no valid tag provided. Skipping Quality Gate check."
 
   push_to_nexus:
     runs-on: ubuntu-latest
