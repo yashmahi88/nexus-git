@@ -95,7 +95,7 @@ jobs:
             # Fetch the quality gate status from SonarQube
             PROJECT_KEY="yashmahi88_nexus-git"  # Use your actual project key
             QUALITY_GATE_STATUS=$(curl -s -H "Authorization: Bearer ${{ secrets.SONAR_TOKEN }}" "https://sonarcloud.io/api/qualitygates/project_status?projectKey=${PROJECT_KEY}")
-  
+            echo "Quality Gate Status Response: $QUALITY_GATE_STATUS"
             # Check the quality gate status
             if [[ "$QUALITY_GATE_STATUS" != *"passed"* ]]; then
               echo "Quality Gate failed. Stopping the workflow."
