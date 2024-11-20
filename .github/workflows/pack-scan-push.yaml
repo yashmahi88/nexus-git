@@ -23,7 +23,12 @@ jobs:
         uses: actions/checkout@main
         with:
           repository: yashmahi88/check-nexus
-
+      - name: Check out specific folder (org) from another repo
+        run: |
+          git clone --depth 1 --filter=blob:none --sparse https://github.com/yashmahi88/check-nexus.git
+          cd check-nexus
+          git sparse-checkout set org
+        
       - name: Checkout code
         uses: actions/checkout@v2  
       
