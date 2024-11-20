@@ -94,7 +94,7 @@ jobs:
             sleep 20  
             # Fetch the quality gate status from SonarQube
             PROJECT_KEY="yashmahi88_nexus-git"  # Use your actual project key
-            QUALITY_GATE_STATUS=$(curl -s -u ${{ secrets.SONAR_TOKEN }} "https://sonarcloud.io/api/qualitygates/project_status?projectKey=${PROJECT_KEY}")
+            QUALITY_GATE_STATUS=$(curl -s -H "Authorization: Bearer ${{ secrets.SONAR_TOKEN }}" "https://sonarcloud.io/api/qualitygates/project_status?projectKey=${PROJECT_KEY}")
   
             # Check the quality gate status
             if [[ "$QUALITY_GATE_STATUS" != *"passed"* ]]; then
