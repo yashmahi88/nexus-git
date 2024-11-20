@@ -21,7 +21,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2  
       
-      - name: Check out my other private repo
+      - name: Check out other repo
         uses: actions/checkout@main
         with:
           repository: yashmahi88/check-nexus
@@ -29,7 +29,7 @@ jobs:
       - name: Build Project 
         uses: ./.github/actions/build  
 
-      - name: Set package name and version
+      - name: Set package name and version 
         id: set_name
         run: |
           echo "Checking GITHUB_REF: $GITHUB_REF"
