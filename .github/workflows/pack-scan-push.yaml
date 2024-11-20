@@ -156,6 +156,7 @@ jobs:
             NEXUS_SOURCE="http://52.187.94.85:8081/repository/nuget-rc"
           fi
           echo "Pushing to Nexus repository: $NEXUS_SOURCE"
-          dotnet nuget push ./bin/Release/*.
+          dotnet nuget push ./bin/Release/*.nupkg --source $NEXUS_SOURCE --api-key $NEXUS_API_KEY
+
 
   
