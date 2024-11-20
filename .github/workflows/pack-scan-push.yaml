@@ -18,14 +18,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2  
-      
+
       - name: Check out other repo
         uses: actions/checkout@main
         with:
           repository: yashmahi88/check-nexus
 
+      - name: Checkout code
+        uses: actions/checkout@v2  
+      
       - name: Build Project 
         uses: ./.github/actions/build  
 
