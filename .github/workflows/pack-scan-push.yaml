@@ -12,6 +12,7 @@ on:
 env:
   PACKAGE_ID: ""
   PACKAGE_VERSION: ""
+  ARTIFACT_PATH: ""
 
 jobs:
   build:
@@ -69,12 +70,14 @@ jobs:
           dotnet pack --configuration Release --output ./bin/Release \
             /p:CustomPackageId=$PACKAGE_ID \
             /p:PackageVersion=$PACKAGE_VERSION
+          ARTIFACT_PATH="./bin/Release/${PACKAGE_ID}.${PACKAGE_VERSION}.nupkg"
+          echo "ARTIFACT_PATH=${ARTIFACT_PATH}" >> $GITHUB_ENV
 
       - name: Upload Package as Artifact
         uses: actions/upload-artifact@v3
         with:
           name: nuget-package
-          path: ./bin/Release/$PACKAGE_ID.$PACKAGE_VERSION.nupkg
+          path: ${{ env.ARTIFACT_PATH }}
 
   sonar_scan:
     runs-on: windows-latest
