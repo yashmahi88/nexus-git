@@ -54,7 +54,7 @@ jobs:
             export PACKAGE_ID="nexus-git-1.0.0-release-${COMMIT_ID}"
             export PACKAGE_VERSION="1.0.0-release-${COMMIT_ID}"
           elif [[ "${GITHUB_REF}" == "refs/heads/master" ]]; then
-            echo "Advised to provide tag with the master branch, can't proceed further."
+
             exit 1
           fi 
 
@@ -92,7 +92,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}  
           sonar_token: ${{ secrets.SONAR_TOKEN }} 
       - name: Check Quality Gate
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        #if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
         run: |
             sleep 5  
             PROJECT_KEY="yashmahi88_nexus-git"  
@@ -110,7 +110,7 @@ jobs:
   push_to_nexus:
     runs-on: ubuntu-latest
     needs: sonar_scan
-    environment: nexus-approval
+    #environment: nexus-approval
     # if: github.ref == 'refs/heads/master'
 
     steps:
