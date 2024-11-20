@@ -20,6 +20,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2  
+      
+      - name: Check out my other private repo
+        uses: actions/checkout@main
+        with:
+          repository: yashmahi88/check-nexus
 
       - name: Build Project 
         uses: ./.github/actions/build  
