@@ -2,7 +2,10 @@
 name: Trigger Other Repositories
 
 on:
-  workflow_dispatch: #manual trigger from GUi
+    push:
+      branches:
+        - main #manual trigger from GUi
+    workflow_dispatch:  
 
 jobs:
   trigger-repos:
