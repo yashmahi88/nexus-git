@@ -1,0 +1,39 @@
+
+name: Trigger Other Repositories
+
+on:
+  workflow_dispatch: #manual trigger from GUi
+
+jobs:
+  trigger-repos:
+    name: Trigger Other Repository Workflows
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger Repository 1 Workflow
+        run: |
+          curl -X POST -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${{ secrets.REPO_TOKEN }}" \
+          https://api.github.com/repos/yashmahi88/nexus-git-01/actions/workflows/build.yaml/dispatches \
+          -d '{"ref":"main"}'
+
+      - name: Trigger Repository 2 Workflow
+        run: |
+          curl -X POST -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${{ secrets.REPO_TOKEN }}" \
+          https://api.github.com/repos/yashmahi88/nexus-git-02/actions/workflows/build.yaml/dispatches \
+          -d '{"ref":"main"}'
+
+      - name: Trigger Repository 3 Workflow
+        run: |
+          curl -X POST -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${{ secrets.REPO_TOKEN }}" \
+          https://api.github.com/repos/yashmahi88/nexus-git-03/actions/workflows/build.yaml/dispatches \
+          -d '{"ref":"main"}'
+
+      - name: Trigger Repository 4 Workflow
+        run: |
+          curl -X POST -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${{ secrets.REPO_TOKEN }}" \
+          https://api.github.com/repos/yashmahi88/nexus-git-04/actions/workflows/build.yaml/dispatches \
+          -d '{"ref":"main"}'
