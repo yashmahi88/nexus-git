@@ -40,4 +40,4 @@ jobs:
           -H "Authorization: Bearer ${{ secrets.REPO_TOKEN }}" \
           https://api.github.com/repos/yashmahi88/nexus-git-04/actions/workflows/build.yaml/dispatches \
           -d '{"ref":"main"}'
- 
+  
