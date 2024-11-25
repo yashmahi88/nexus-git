@@ -10,7 +10,7 @@ on:
 
 jobs:
   call_publish_package:
-    uses: yashmahi88/.github/workflow-templates/publish-package.yml@main
+    uses: yashmahi88/.github/.github/workflows/publish-package.yml@main
     with:
       nexus_username: ${{ secrets.NEXUS_USERNAME }}
       nexus_password: ${{ secrets.NEXUS_PASSWORD }}
