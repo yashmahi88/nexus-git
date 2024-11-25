@@ -13,9 +13,9 @@ jobs:
   call_publish_package:
     uses: yashmahi88/.github/.github/workflows/publish-package.yml@main
     with:
-      project_key: ${{ github.event.inputs.project_key }}
-      project_name: ${{ github.event.inputs.project_name }}
-    secrets: inherit 
+      project_key: ${{ vars.PROJECT_KEY }}  # Accessing the repository variable
+      project_name: ${{ vars.PROJECT_NAME }}  # Accessing the repository variable
+    secrets: inherit
     #   NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
     #   NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
     #   NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
