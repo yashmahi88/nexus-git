@@ -12,11 +12,11 @@ on:
 jobs:
   call_publish_package:
     uses: yashmahi88/.github/.github/workflows/publish-package.yml@main
-    with:
-      project_key: ${{ vars.PROJECT_KEY }}  # Accessing the repository variable
-      project_name: ${{ vars.PROJECT_NAME }}  # Accessing the repository variable
-    secrets: inherit
-    #   NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
-    #   NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
-    #   NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
-    #   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} 
+    # with:
+    #   project_key: ${{ vars.PROJECT_KEY }}  
+    #   project_name: ${{ vars.PROJECT_NAME }}  
+    # secrets: inherit
+    # #   NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+    # #   NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+    # #   NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
+    # #   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} 
