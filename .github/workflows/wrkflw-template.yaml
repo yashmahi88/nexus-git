@@ -7,6 +7,7 @@ on:
       - release
     tags:
       - '*'
+      
 
 jobs:
   call_publish_package:
@@ -14,8 +15,8 @@ jobs:
     with:
       project_key: ${{ github.event.inputs.project_key }}
       project_name: ${{ github.event.inputs.project_name }}
-    secrets:
-      NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
-      NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
-      NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} 
+    secrets: inherit 
+    #   NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+    #   NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+    #   NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
+    #   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} 
