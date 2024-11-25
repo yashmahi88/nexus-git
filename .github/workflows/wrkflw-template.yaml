@@ -1,4 +1,4 @@
-name: Call Publish Package Workflow
+name: Main Workflow for Publishing Package
 
 on:
   push:
@@ -12,7 +12,10 @@ jobs:
   call_publish_package:
     uses: yashmahi88/.github/.github/workflows/publish-package.yml@main
     with:
-      nexus_username: ${{ secrets.NEXUS_USERNAME }}
-      nexus_password: ${{ secrets.NEXUS_PASSWORD }}
-      nexus_api_key: ${{ secrets.NEXUS_API_KEY }}
-      sonar_token: ${{ secrets.SONAR_TOKEN }}
+      project_key: ${{ github.event.inputs.project_key }}
+      project_name: ${{ github.event.inputs.project_name }}
+    secrets:
+      NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+      NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+      NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
